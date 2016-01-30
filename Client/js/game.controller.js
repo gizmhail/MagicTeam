@@ -84,17 +84,80 @@ function updateUIFromGameState(game){
         }).appendTo(foeTypeDiv);
         $('<div/>', {
             class: 'sequence',
-            text: 'Spell sequence:'+foeType.spellWeakness.arcaneSequence.join(',')
+            text: 'Spell sequence: '+foeType.spellWeakness.arcaneSequence.join(',')
         }).appendTo(foeTypeDiv);
         foeTypeDiv.appendTo('#bestiary');
 
     }
+    $('#keysContainer').html("");
+    for (var i = 0; i < game.availableKeys.length; i++) {
+        var key = game.availableKeys[i];
+        $("#keysContainer").append("<div id='key-"+key+"' class='key'>"+key+"</div>");
+    }
+    updateKeysCallbacks();
 }
 
 function regularGameStateUpdate(){
     updateGameState(currentGameId(), function(game){
         updateUIFromGameState(game);
     });
+}
+
+function castPreparedSpell(){
+    castSpell(gameId, playerId, gSequence, function(){});
+    gSequence = [];
+    $(".arcane").html("");
+}
+
+var lastTouchEnd = null;
+var touchStart = false;
+function pressKey(keyId){
+    if ( $( "#key-"+keyId ).length ){
+        if(gSequence.length < 3){
+            gSequence.push(keyId);
+        }
+        $("#arcane"+gSequence.length).html(keyId);
+        if(gSequence.length == 3){
+            // Automatic cast (with a small delay to SEE third arcane symbol pressed)
+            window.setTimeout(function(){castPreparedSpell()}, 500);
+        }
+    }
+}
+
+
+function touchKeyEventHandling(event){
+    var touchOk = true;
+    var now = Date.now();
+    if(lastTouchEnd != null){
+        var deltaTime = now - lastTouchEnd;
+        if(deltaTime < 500){
+            touchOk = false;
+        }
+    }
+    lastTouchEnd = now;
+
+    if(touchOk){
+        var keyId = event.target.id;
+        keyId = keyId.replace("key-","");
+        pressKey(keyId);
+        event.stopPropagation()             
+    }
+}
+function updateKeysCallbacks(){
+    $('.key').on('touchstart', function(event) {
+        lastTouchEnd = null;
+        touchStart = true;
+    });
+
+    $('.key').on('touchend', function(event) {
+        touchKeyEventHandling(event);
+    });
+
+    $(".key").click(function(event){
+        if(!touchStart){
+            touchKeyEventHandling(event);
+        }
+    });        
 }
 
 $(document).ready(function(){  
@@ -124,12 +187,6 @@ $(document).ready(function(){
         }
     });
 
-    function castPreparedSpell(){
-        castSpell(gameId, playerId, gSequence, function(){});
-        gSequence = [];
-        $(".arcane").html("");
-    }
-
     $("#castButton").click(function(){
         castPreparedSpell();
     });
@@ -138,55 +195,9 @@ $(document).ready(function(){
         $(".arcane").html("");
     });
 
-    var lastTouchEnd = null;
-    var touchStart = false;
-    function pressKey(keyId){
-        if ( $( "#key-"+keyId ).length ){
-            if(gSequence.length < 3){
-                gSequence.push(keyId);
-            }
-            $("#arcane"+gSequence.length).html(keyId);
-            if(gSequence.length == 3){
-                // Automatic cast (with a small delay to SEE third arcane symbol pressed)
-                window.setTimeout(function(){castPreparedSpell()}, 500);
-            }
-        }
-    }
+    updateKeysCallbacks();
 
-    function touchKeyEventHandling(event){
-        var touchOk = true;
-        var now = Date.now();
-        if(lastTouchEnd != null){
-            var deltaTime = now - lastTouchEnd;
-            if(deltaTime < 500){
-                touchOk = false;
-            }
-        }
-        lastTouchEnd = now;
-
-        if(touchOk){
-            var keyId = event.target.id;
-            keyId = keyId.replace("key-","");
-            pressKey(keyId);
-            event.stopPropagation()             
-        }
-    }
-    $('.key').on('touchstart', function(event) {
-        lastTouchEnd = null;
-        touchStart = true;
-    });
-
-    $('.key').on('touchend', function(event) {
-        touchKeyEventHandling(event);
-    });
-
-    $(".key").click(function(event){
-        if(!touchStart){
-            touchKeyEventHandling(event);
-        }
-    });
-
-   $(window).keypress(function(e) {
+    $(window).keypress(function(e) {
         var keyId = String.fromCharCode(e.which);
         console.log(e, keyId);
         pressKey(keyId);

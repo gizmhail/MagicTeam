@@ -27,6 +27,7 @@ class Game{
 	var $waveInfo = array();
 	var $levelSucess = false;
 	var $levelFailure = false;
+	var $availableKeys = array();
 	// Do not serialize debug
 	var $debug = array();
 
@@ -179,6 +180,7 @@ class Game{
 				$this->gameStarted = $storedGame->gameStarted;
 				$this->playingClasses = $storedGame->playingClasses;
 				$this->waveInfo = $storedGame->waveInfo;
+				$this->availableKeys = $storedGame->availableKeys;
 			}else{
 				throw new Exception('Problem with '.$this->storageFile().' game state file');
 			}
@@ -326,17 +328,14 @@ class Game{
 		if($sourcePlayer){
 			foreach ($this->players as $player) {
 				foreach ($player->bestiary as $foeType) {
-					if($foeType->spellWeakness->playerClass == $sourcePlayer->playerClass){
-						// This spell can be cast by the player
+					if($foeType->spellWeakness->playerClass == $sourcePlayer->playerClass && $sourcePlayer->playerLife > 0){
+						// This spell can be cast by the player (who is still alive - no cheating ;p )
 						if(!$targetFoeTypeName || $foeType->foeName == $targetFoeTypeName){
 							// We're targeting the proper enemy kind (or not yet using targeting in the game ;) )
 							if($sequence == $foeType->spellWeakness->arcaneSequence){
 								// The spell has been properly done !
 								$backFire = false;
 								$targetedFoes = $this->activeFoesOfType($foeType);
-//var_dump($foeType);
-//var_dump($targetedFoes);
-//exit;
 								foreach ($this->activeFoesOfType($foeType) as $foe) {
 									$previousLife = $foe->foeLife;
 									$currentLife = $previousLife - $foeType->spellWeakness->spellDamage;
@@ -389,18 +388,30 @@ class Game{
 		return array(MAGE_CLASS_1, MAGE_CLASS_2, MAGE_CLASS_3);
 	}
 
+	function randomSpellSequence($availableKeys, $size = 3){
+		$sequence = array();
+		while(count($sequence) < $size){
+			$availableKeysIndex = rand(0, count($availableKeys)-1);
+			$key = $availableKeys[$availableKeysIndex];
+			$sequence[] = $key;
+		}
+		return $sequence;
+	}
 	function loadLevel1(){	
+		$availableKeys = array("m","a","o","i","c","e","j","k","z");
+		$this->availableKeys = $availableKeys;
+		
 		// -- Spells	
 
 		// Blanc
-		$sacredLightSpell = new Spell("Lumière sacrée", array("m","a","o"), MAGE_CLASS_1, 50);
-		$lightStrikeSpell = new Spell("Frappe divine", array("o","o","o"), MAGE_CLASS_1, 50);
+		$sacredLightSpell = new Spell("Lumière sacrée", $this->randomSpellSequence($availableKeys), MAGE_CLASS_1, 50);
+		$lightStrikeSpell = new Spell("Frappe divine", $this->randomSpellSequence($availableKeys), MAGE_CLASS_1, 50);
 		// Glace
-		$frostBoltSpell = new Spell("Eclair de givre", array("i","c","e"), MAGE_CLASS_2, 50);
-		$iceLanceSpell = new Spell("Javelot de glace", array("j","k","z"), MAGE_CLASS_2, 50);
+		$frostBoltSpell = new Spell("Eclair de givre", $this->randomSpellSequence($availableKeys), MAGE_CLASS_2, 50);
+		$iceLanceSpell = new Spell("Javelot de glace", $this->randomSpellSequence($availableKeys), MAGE_CLASS_2, 50);
 		// Fire
-		$fireballSpell = new Spell("Fireball", array("a","z","e"), MAGE_CLASS_3, 50);
-		$fireTornadoSpell = new Spell("Tornade de flammes", array("i","j","k"), MAGE_CLASS_3, 50);
+		$fireballSpell = new Spell("Fireball", $this->randomSpellSequence($availableKeys), MAGE_CLASS_3, 50);
+		$fireTornadoSpell = new Spell("Tornade de flammes", $this->randomSpellSequence($availableKeys), MAGE_CLASS_3, 50);
 
 		// Blanc
 		$zombieFoeType = new FoeType("Zombie", $lightStrikeSpell, 100, 9/SERVER_SPEED);
