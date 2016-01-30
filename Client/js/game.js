@@ -2,9 +2,14 @@
 var serverHostname = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '');
 var serverBaseUrl = serverHostname + "/Phaser/GameJam/MagicTeam/Server";
 
+/*
 var gFireMageKey = "Mage blanc";
 var gFrostMageKey = "Mage frost";
 var gWhiteMageKey = "Mage feu";
+*/
+var gFireMageKey = "White mage";
+var gFrostMageKey = "Frost mage";
+var gWhiteMageKey = "Fire mage";
 
 //TODO Rename gameId and playerId to differiante "global", or use methods (better)
 var gameId = currentGameId();

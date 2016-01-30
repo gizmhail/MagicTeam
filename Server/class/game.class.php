@@ -3,9 +3,14 @@
 include_once(dirname(__FILE__).'/foe.class.php');
 include_once(dirname(__FILE__).'/player.class.php');
 
+/*
 define("MAGE_CLASS_1", "Mage blanc");
 define("MAGE_CLASS_2", "Mage frost");
 define("MAGE_CLASS_3", "Mage feu");
+*/
+define("MAGE_CLASS_1", "White mage");
+define("MAGE_CLASS_2", "Frost mage");
+define("MAGE_CLASS_3", "Fire mage");
 
 define("SERVER_SPEED", 1);
 

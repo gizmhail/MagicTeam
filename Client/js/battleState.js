@@ -33,13 +33,13 @@ battleState.prototype = {
         
         this.backgroundSprite = magicTeamGame.add.sprite(0, 0, 'background');
         this.backgroundSprite.crop(new Phaser.Rectangle(0, 100, 640, 384 - 100))
-        this.mageSprites[gFireMageKey] = magicTeamGame.add.sprite(80, 70, 'fireMage');
-        this.mageSprites[gFrostMageKey] = magicTeamGame.add.sprite(60, 140, 'frostMage');
-        this.mageSprites[gWhiteMageKey] = magicTeamGame.add.sprite(40, 210, 'whiteMage');
+        this.mageSprites[gFireMageKey] = magicTeamGame.add.sprite(80, 60, 'fireMage');
+        this.mageSprites[gFrostMageKey] = magicTeamGame.add.sprite(60, 135, 'frostMage');
+        this.mageSprites[gWhiteMageKey] = magicTeamGame.add.sprite(40, 213, 'whiteMage');
 
-        this.foeSprites.push( magicTeamGame.add.sprite(540, 70, 'zombie') ); 
-        this.foeSprites.push( magicTeamGame.add.sprite(560, 140, 'zombie') ); 
-        this.foeSprites.push( magicTeamGame.add.sprite(580, 210, 'zombie') ); 
+        this.foeSprites.push( magicTeamGame.add.sprite(500, 70, 'zombie') ); 
+        this.foeSprites.push( magicTeamGame.add.sprite(520, 140, 'zombie') ); 
+        this.foeSprites.push( magicTeamGame.add.sprite(540, 210, 'zombie') ); 
 
         for (var i = 0; i < 15; i++) {
             var indicatorSprite = magicTeamGame.add.sprite(20+40*i, 10, 'foe_absent');
@@ -67,6 +67,12 @@ battleState.prototype = {
             this.mageSprites[mageKey].addChild(lifeBarEmpty);
             lifeBarEmpty.addChild(lifeBarFull);
             this.mageSprites[mageKey].lifeBarFull = lifeBarFull;
+
+            var style = { font: "12px Arial", fill: "#ffffff", align: "center" };
+            var text = mageKey;
+            var mageDisplayText = magicTeamGame.add.text(-20, 55, text, style); 
+            this.mageSprites[mageKey].addChild(mageDisplayText);
+            this.mageSprites[mageKey].mageDisplayText = mageDisplayText;
         };
 
         for (var i = 0; i < 3; i++) {
@@ -88,6 +94,13 @@ battleState.prototype = {
             this.foeSprites[i].originalPosition = {x: this.foeSprites[i].x, y: this.foeSprites[i].y};
             this.foeSprites[i].foeId = null;
             this.foeSprites[i].attackTween = null;
+
+            var style = { font: "12px Arial", fill: "#ffffff", align: "center" };
+            var text = "";
+            var foeDisplayText = magicTeamGame.add.text(-20, 45, text, style); 
+            this.foeSprites[i].addChild(foeDisplayText);
+            this.foeSprites[i].foeDisplayText = foeDisplayText;
+
         };
         
         /*
@@ -149,6 +162,10 @@ battleState.prototype = {
             if(player.playerLife >0){
                 sprite.revive();
                 this.updateMageLife(mageKey, player.playerLife / 100);
+                if(playerId == userIdentifier()){
+                    this.mageSprites[mageKey].mageDisplayText.text = mageKey+" (YOU)";
+                    this.mageSprites[mageKey].mageDisplayText.setStyle({ font: "12px Arial", fill: "#ff6600", align: "center" });
+                }
             }else{
                 //TODO Add annimation when killed (and check if killed)
                 sprite.kill();
@@ -223,6 +240,7 @@ battleState.prototype = {
                             if(sprite.foeId == null || !sprite.alive){
                                 sprite.revive();
                                 sprite.foeId = foe.foeId;
+                                sprite.foeDisplayText.text = foe.foeType.foeName;
                                 sprite.attackTween = null;
                                 // console.log("---- ", foe.foeId);
                                 sprite.x = sprite.originalPosition.x;
@@ -236,7 +254,7 @@ battleState.prototype = {
                         var percent = foe.foeLife / foe.foeType.foeMaxLife;
                         foeSprite.lifeBarFull.crop(new Phaser.Rectangle(0, 0, percent*48, 3));
                         foeSprite.revive();
-                        console.log("---", foeSprite);
+                        // console.log("---", foeSprite);
                         if(foe.timeBeforeNextCast != null){
                             var targetMageClass = foe.targetPlayerClassName;
                             var mageSprite = this.mageSprites[targetMageClass];
