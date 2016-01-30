@@ -2,6 +2,8 @@
 <html>
     <head>
         <meta charset="UTF-8" />
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name = "viewport" content = "width = device-width, initial-scale = 1.0, user-scalable = no">
         <title>hello phaser!</title>
         <script src="js/phaser.min.js"></script>
         <script src="js/jquery.min.js"></script>
@@ -38,8 +40,11 @@
                 ?>
                 <li>
                     <a href='game.html?gameId=<?php echo $gameId?>'>
-                        Game <?php echo $gameId?> 
-                        (<?php echo count($game->players)?>/<?php echo count($game->gameClasses()) ?>)
+                        Players: <?php echo count($game->players)?>/<?php echo count($game->gameClasses()) ?>
+                        <ul>
+                            <li>Game id: <?php echo $gameId?> </li>
+                            <li>Start date: <?php echo date("d/m - H:i:s", $game->creationDate)?> </li>
+                        </ul>
                     </a>
                 </li>
                 <?php

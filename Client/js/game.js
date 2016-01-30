@@ -1,5 +1,7 @@
 
-var serverBaseUrl = "http://localhost:8888/Phaser/GameJam/MagicTeam/Server";
+var serverHostname = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '');
+
+var serverBaseUrl = serverHostname + "/Phaser/GameJam/MagicTeam/Server";
 //TODO Rename gameId and playerId to differiante "global", or use methods (better)
 var gameId = currentGameId();
 var playerId = userIdentifier();

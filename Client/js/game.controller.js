@@ -51,16 +51,12 @@ function updateUIFromGameState(game){
             $('<div/>', {
                 class: 'foeClass',
                 style: classStyle,
-                text: foe.foeType.foeName
-            }).appendTo(foeDiv);
-            $('<div/>', {
-                class: 'foeLife',
-                text: foe.foeLife+"/"+foe.foeType.foeMaxLife
+                html: foe.foeType.foeName+"<small>"+foe.foeLife+"/"+foe.foeType.foeMaxLife+"</small>"
             }).appendTo(foeDiv);
             var timeBeforeNextCast = Math.round(foe.timeBeforeNextCast*100)/100;
             $('<div/>', {
                 class: 'foeAttack',
-                text: "will attack "+foe.foeType.spellWeakness.playerClass+" in "+timeBeforeNextCast+" seconds"
+                html: "<small>will attack "+foe.foeType.spellWeakness.playerClass+" in "+timeBeforeNextCast+" seconds</small>"
             }).appendTo(foeDiv);
             foeDiv.appendTo('#foesSide');
 
@@ -134,12 +130,54 @@ $(document).ready(function(){
         $(".arcane").html("");
     });
 
-    $(".key").click(function(event){
-        var keyId = event.target.id;
-        keyId = keyId.replace("key-","");
-        if(gSequence.length < 3){
-            gSequence.push(keyId);
+    var lastTouchEnd = null;
+    var touchStart = false;
+    function pressKey(keyId){
+        if ( $( "#key-"+keyId ).length ){
+            if(gSequence.length < 3){
+                gSequence.push(keyId);
+            }
+            $("#arcane"+gSequence.length).html(keyId);
         }
-        $("#arcane"+gSequence.length).html(keyId);
+    }
+
+    function touchKeyEventHandling(event){
+        var touchOk = true;
+        var now = Date.now();
+        if(lastTouchEnd != null){
+            var deltaTime = now - lastTouchEnd;
+            if(deltaTime < 500){
+                touchOk = false;
+            }
+        }
+        lastTouchEnd = now;
+
+        if(touchOk){
+            var keyId = event.target.id;
+            keyId = keyId.replace("key-","");
+            pressKey(keyId);
+            event.stopPropagation()             
+        }
+    }
+    $('.key').on('touchstart', function(event) {
+        lastTouchEnd = null;
+        touchStart = true;
+    });
+
+    $('.key').on('touchend', function(event) {
+        touchKeyEventHandling(event);
+    });
+
+    $(".key").click(function(event){
+        if(!touchStart){
+            touchKeyEventHandling(event);
+        }
+    });
+
+   $(window).keypress(function(e) {
+        var keyId = String.fromCharCode(e.which);
+        console.log(e, keyId);
+        pressKey(keyId);
+
     });
 });

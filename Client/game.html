@@ -2,6 +2,10 @@
 <html>
     <head>
         <meta charset="UTF-8" />
+        <meta name="apple-mobile-web-app-capable" content="yes">
+
+        <meta name = "viewport" content = "width = device-width, initial-scale = 1.0, user-scalable = no">
+
         <title>hello phaser!</title>
         <script src="js/phaser.min.js"></script>
 		<script src="js/jquery.min.js"></script>
@@ -13,11 +17,8 @@
     <body>
         <div>
             <span><a href='index.php'>&lt; Game list</a></span>
-        </div>
-        <div>
             <a href='#' id='startButton'>Start game</a>
-        </div>
-        <div id='gameStatus'>
+            <span id='gameStatus'></span>
         </div>
         <div id='gameInfo'>
             <div id='playersSide' style='float:left;width:50%'></div>
@@ -25,32 +26,39 @@
             <div style='clear:both'></div>
         </div>
         <div id='gameEntries' style='margin-top:5px'>
-            <div id='bestiary' style='float:left;width:50%'></div>
-            <div id='input' style='float:right;width:50%'>
-                <div  id='arcaneList'>
-                    <span>
-                        <div id='arcane1' class='arcane'> </div>
-                        <div id='arcane2' class='arcane'> </div>
-                        <div id='arcane3' class='arcane'> </div>
-                    </span>
-                    <button id='castButton'>Cast spell</button>
-                    <button id='resetButton'>Reset spell</button>
-                    <div style='clear:both'></div>
-                </div>
-                <div id="keys">
-                    <div id='key-a' class='key'>a</div>
-                    <div id='key-z' class='key'>z</div>
-                    <div id='key-e' class='key'>e</div>
-                    <div id='key-m' class='key'>m</div>
-                    <div id='key-n' class='key'>n</div>
-                    <div id='key-o' class='key'>o</div>
-                    <div id='key-i' class='key'>i</div>
-                    <div id='key-j' class='key'>j</div>
-                    <div id='key-k' class='key'>k</div>
-                    <div id='key-c' class='key'>c</div>
+            <div style='float:left;width:50%'>
+                <div style='text-align:center'><b>Bestiary</b> <br/><small>(<i>the foes against which your FRIEND's spells are effective</i>)</small></div>
+                <div id='bestiary'></div>
 
-                </div>
             </div>
+            <div style='float:right;width:50%'>
+                <div style='text-align:center'><b>Spellbook</b> <br/><small>(<i>combine symbols to launch YOUR spells - as instructed by your friends</i>)</small></div>
+                <div id='input'>
+                    <div  id='arcaneList'>
+                        <span>
+                            <div id='arcane1' class='arcane'> </div>
+                            <div id='arcane2' class='arcane'> </div>
+                            <div id='arcane3' class='arcane'> </div>
+                        </span>
+                        <button id='castButton'>Cast spell</button>
+                        <button id='resetButton'>Reset spell</button>
+                        <div style='clear:both'></div>
+                    </div>
+                    <div id="keys">
+                        <div id='key-a' class='key'>a</div>
+                        <div id='key-z' class='key'>z</div>
+                        <div id='key-e' class='key'>e</div>
+                        <div id='key-m' class='key'>m</div>
+                        <div id='key-n' class='key'>n</div>
+                        <div id='key-o' class='key'>o</div>
+                        <div id='key-i' class='key'>i</div>
+                        <div id='key-j' class='key'>j</div>
+                        <div id='key-k' class='key'>k</div>
+                        <div id='key-c' class='key'>c</div>
+
+                    </div>
+                </div>
+                </div>
             <div style='clear:both'></div>
         </div>
     	<div>
