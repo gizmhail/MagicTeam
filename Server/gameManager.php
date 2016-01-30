@@ -8,6 +8,8 @@ include_once($gameBaseDir.'/class/game.class.php');
 $request = isset($_GET['request'])?$_GET['request']:"listGames";
 $playerId = isset($_GET['playerId'])?$_GET['playerId']:false;
 $gameId = isset($_GET['gameId'])?$_GET['gameId']:false;
+$sequence = isset($_GET['sequence'])?explode(',',$_GET['sequence']):false;
+$targetFoeTypeName = isset($_GET['targetFoeTypeName'])?$_GET['targetFoeTypeName']:false;
 
 // Output placeholders
 $data = array();
@@ -57,7 +59,17 @@ if($request == "stopGame"){
 		$data = array("error"=>"Missing parameters (gameId needed)");
 	}
 }
-//if($request == "castSpell"){}
+if($request == "castSpell"){
+	if($gameId && $sequence){
+		$game = new Game($gameId);
+		// targetFoeTypeName can be null (we're tolerant guys ^^)
+		$game->castSpell($playerId, $sequence,$targetFoeTypeName);
+		$data = $game;
+	}else{
+		$data = array("error"=>"Missing parameters (gameId and sequence in a,b,c format needed)");
+	}
+
+}
 
 // Output formating
 

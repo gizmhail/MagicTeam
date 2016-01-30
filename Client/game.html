@@ -8,6 +8,7 @@
         <script src="js/tools.js"></script>
         <script src="js/game.js"></script>
         <script src="js/game.controller.js"></script>
+        <link rel="stylesheet" type="text/css" href="game.css?v=1.02">
     </head>
     <body>
         <div>
@@ -17,14 +18,34 @@
             <a href='#' id='startButton'>Start game</a>
         </div>
         <div id='gameInfo'>
-            <div style='clear:both'></div>
             <div id='playersSide' style='float:left;width:50%'></div>
             <div id='foesSide' style='float:right;width:50%'></div>
             <div style='clear:both'></div>
         </div>
-        <div id='gameEntries'>
-            <div id='bestiary'></div>
-            <div id='input'></div>
+        <div id='gameEntries' style='margin-top:5px'>
+            <div id='bestiary' style='float:left;width:50%'></div>
+            <div id='input' style='float:right;width:50%'>
+                <div  id='arcaneList'>
+                    <span>
+                        <div id='arcane1' class='arcane'> </div>
+                        <div id='arcane2' class='arcane'> </div>
+                        <div id='arcane3' class='arcane'> </div>
+                    </span>
+                    <button id='castButton'>Cast spell</button>
+                    <button id='resetButton'>Reset spell</button>
+                    <div style='clear:both'></div>
+                </div>
+                <div id="keys">
+                    <div id='key-a' class='key'>a</div>
+                    <div id='key-z' class='key'>z</div>
+                    <div id='key-e' class='key'>e</div>
+                    <div id='key-m' class='key'>m</div>
+                    <div id='key-n' class='key'>n</div>
+                    <div id='key-o' class='key'>o</div>
+
+                </div>
+            </div>
+            <div style='clear:both'></div>
         </div>
     	<div>
             Debug info

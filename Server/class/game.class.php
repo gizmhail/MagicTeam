@@ -20,6 +20,8 @@ class Game{
 	var $playingClasses = array();
 	var $waveInfo = array();
 	var $levelSucess = false;
+	// Do not serialize debug
+	var $debug = array();
 
 	function __construct($gameId = false){
 		if($gameId === false){
@@ -40,6 +42,7 @@ class Game{
 		if(count($this->players)>1){
 			$this->gameStarted = true;
 			$this->loadLevel();
+			$this->gameProgression();
 			$this->save();
 		}
 	}
@@ -160,14 +163,18 @@ class Game{
 		if(is_file($this->storageFile())){
 			$storedGameContent = file_get_contents($this->storageFile());			
 			$storedGame = unserialize($storedGameContent);
-			// Bring back stored game info to this one
-			$this->creationDate = $storedGame->creationDate;
-			$this->players = $storedGame->players;
-			$this->lastSaveDate = $storedGame->lastSaveDate;
-			$this->currentLevel = $storedGame->currentLevel;
-			$this->gameStarted = $storedGame->gameStarted;
-			$this->playingClasses = $storedGame->playingClasses;
-			$this->waveInfo = $storedGame->waveInfo;
+			if($storedGameContent){
+				// Bring back stored game info to this one
+				$this->creationDate = $storedGame->creationDate;
+				$this->players = $storedGame->players;
+				$this->lastSaveDate = $storedGame->lastSaveDate;
+				$this->currentLevel = $storedGame->currentLevel;
+				$this->gameStarted = $storedGame->gameStarted;
+				$this->playingClasses = $storedGame->playingClasses;
+				$this->waveInfo = $storedGame->waveInfo;
+			}else{
+				throw new Exception('Problem with '.$this->storageFile().' game state file');
+			}
 		}
 	}
 
@@ -218,11 +225,19 @@ class Game{
 				if($foe->foeLife > 0 && !$foe->hasFled){
 					$aliveFoes[] = $foe;
 					if(!$foe->active){
-						$aliveFoesNotActive[] = $foe;
+						$playerKillingFoe = $this->playerOfClass($foe->foeType->spellWeakness->playerClass);
+						if($playerKillingFoe && $playerKillingFoe->playerLife > 0){
+							$aliveFoesNotActive[] = $foe;
+						}else{
+							// The player that can kill this monster is not here anymore...we'll be nice, and skip this one :)
+							// (otherwise the remaining players could only die, they would be doomed ! )
+							$foe->hasFled = true;
+						}
 					}else{
 						$activeFoes[] = $foe;
 					}
 				}else{
+
 					$foe->active = false;
 				}
 			}
@@ -263,7 +278,7 @@ class Game{
 							// We prepare the next attack
 							//var_dump("".$delta." ".microtime(true)." ".$foe->serverNextCastTime);
 							$foe->serverNextCastTime = microtime(true) + $foe->foeType->castTime;
-							$foe->timeBeforeNextCast = $firstInactive->foeType->castTime;
+							$foe->timeBeforeNextCast = $foe->foeType->castTime;
 							if($target->playerLife == 0){
 								$foe->hasFled = true;
 							}
@@ -279,6 +294,70 @@ class Game{
 		}
 		$this->save();
 	}
+
+	function castSpell($playerId, $sequence,$targetFoeTypeName=null){
+		$sourcePlayer = isset($this->players[$playerId])?$this->players[$playerId]:null;
+		// By default, all goes wrong...
+		$backFire = true;
+		if($sourcePlayer){
+			foreach ($this->players as $player) {
+				foreach ($player->bestiary as $foeType) {
+					if($foeType->spellWeakness->playerClass == $sourcePlayer->playerClass){
+						// This spell can be cast by the player
+						if(!$targetFoeTypeName || $foeType->foeName == $targetFoeTypeName){
+							// We're targeting the proper enemy kind (or not yet using targeting in the game ;) )
+							if($sequence == $foeType->spellWeakness->arcaneSequence){
+								// The spell has been properly done !
+								$backFire = false;
+								$targetedFoes = $this->activeFoesOfType($foeType);
+//var_dump($foeType);
+//var_dump($targetedFoes);
+//exit;
+								foreach ($this->activeFoesOfType($foeType) as $foe) {
+									$previousLife = $foe->foeLife;
+									$currentLife = $previousLife - $foeType->spellWeakness->spellDamage;
+									$foe->foeLife = max(0, $currentLife);
+									$this->debug[] = "Foe damage $previousLife -> $currentLife for ".$foeType->foeName;
+									$this->gameProgression();
+								}
+							}else{
+								$this->debug[] = "Bad sequence :'( (".implode(':', $sequence).",".implode(':', $foeType->spellWeakness->arcaneSequence).")";
+							}
+						}
+					}
+				}
+			}
+		}
+		if($backFire){
+			//TODO Add punishment :) (or do it client side ?)
+			$this->debug[] = "Spell backfired ! ($playerId, ".implode(':',$sequence).",$targetFoeTypeName)";
+
+		}
+	}
+
+	/**
+	 * Model access helpers
+	 */
+
+	function playerOfClass($requiredClass){
+		foreach ($this->players as $player) {
+			if($player->playerClass == $requiredClass){
+				return $player;
+			}
+		}
+		return null;
+	}
+	function activeFoesOfType($foeType){
+		$foes = array();
+		foreach ($this->waveInfo as $foe) {
+			if($foe->foeType == $foeType && $foe->active){
+				$foes[] = $foe;
+			}
+		}
+		return $foes;
+	}
+
+
 	/**
 	 * Game rules
 	 */
@@ -300,14 +379,14 @@ class Game{
 		$fireTornadoSpell = new Spell("Tornade de flammes", array("i","j","k"), MAGE_CLASS_3, 50);
 
 		// Blanc
-		$zombieFoeType = new FoeType("Zombie", $lightStrikeSpell, 100, 8);
-		$vampireFoeType = new FoeType("Vampire", $sacredLightSpell, 100, 8);
+		$zombieFoeType = new FoeType("Zombie", $lightStrikeSpell, 100, 9);
+		$vampireFoeType = new FoeType("Vampire", $sacredLightSpell, 100, 7);
 		// Glace
 		$fireElemFoeType = new FoeType("Elémentaire de feu", $frostBoltSpell, 100, 10);
-		$sparkFoeType = new FoeType("Etincelle", $iceLanceSpell, 50, 8);
+		$sparkFoeType = new FoeType("Etincelle", $iceLanceSpell, 50, 6);
 		// Fire
-		$iceElemFoeType = new FoeType("Elémentaire de glace", $fireballSpell, 100, 8);
-		$iceGiantFoeType = new FoeType("Géant du froid", $fireTornadoSpell, 100, 8);
+		$iceElemFoeType = new FoeType("Elémentaire de glace", $fireballSpell, 100, 11);
+		$iceGiantFoeType = new FoeType("Géant du froid", $fireTornadoSpell, 100, 9);
 
 		// -- Foe types	
 		$this->addFoeToBestiary($zombieFoeType);

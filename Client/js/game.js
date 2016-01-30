@@ -1,8 +1,13 @@
 
 var serverBaseUrl = "http://localhost:8888/Phaser/GameJam/MagicTeam/Server";
-var gameId = getUrlParameter("gameId");
+//TODO Rename gameId and playerId to differiante "global", or use methods (better)
+var gameId = currentGameId();
 var playerId = userIdentifier();
 var lastGameState = null;
+
+function currentGameId(){
+	return getUrlParameter("gameId");
+}
 
 function userIdentifier(){
 	var clientId = localStorage.getItem('clientId');
@@ -41,7 +46,7 @@ function updateGameState(gameId, callback){
         url: serverBaseUrl+'/gameManager.php?request=gameState&gameId='+gameId,
         dataType: 'jsonp',
         success: function(data){
-        	console.log("updateGameState", data);
+        	//console.log("updateGameState", data);
         	lastGameState = data;
             callback(data);
         }
@@ -66,6 +71,18 @@ function stopGame(gameId, callback){
         dataType: 'jsonp',
         success: function(data){
         	console.log("stopGame", data);
+        	lastGameState = data;
+            callback(data);
+        }
+    });
+}
+
+function castSpell(gameId, playerId, sequence, callback){
+	$.ajax({
+        url: serverBaseUrl+'/gameManager.php?request=castSpell&gameId='+gameId+'&playerId='+playerId+'&sequence='+sequence.join(','),
+        dataType: 'jsonp',
+        success: function(data){
+        	console.log("castSpell", data);
         	lastGameState = data;
             callback(data);
         }

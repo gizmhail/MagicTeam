@@ -27,6 +27,7 @@ class Foe{
 	var $lastDamageTargetId = null;
 	// A foe which has killed its player can flee (can't be active, but is not dead)
 	var $hasFled = false;
+	//TODO Had a flag
 
 	function __construct($foeType){
 		$this->foeType = $foeType;

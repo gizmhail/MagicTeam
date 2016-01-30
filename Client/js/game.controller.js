@@ -1,11 +1,16 @@
+
+var gSequence = [];
+
 function updateUIFromGameState(game){
     if(game != null && game["gameStarted"]){
         $("#startButton").html("Stop game");
     }else{
         $("#startButton").html("Start game");   
     }
+    bestiary = game.players[userIdentifier()].bestiary;
     $('#playersSide').html('');
     $('#foesSide').html('');
+    $('#bestiary').html('');
     for (var playerId in game.players) {
         var player = game.players[playerId];
         var playerDiv = $('<div/>', {
@@ -30,7 +35,6 @@ function updateUIFromGameState(game){
     for (var i = 0; i < game.waveInfo.length; i++) {
         var foe = game.waveInfo[i];
         if(foe.active){
-        console.log(foe);
             var foeDiv = $('<div/>', {
                 class: 'foe',
                 style: 'border:1px solid red;',
@@ -54,21 +58,46 @@ function updateUIFromGameState(game){
 
         }
     };
+        
+    for (var i = 0; i < bestiary.length; i++) {
+        var foeType = bestiary[i];
+        var foeTypeDiv = $('<div/>', {
+            class: 'bestiary',
+            style: 'border:1px solid red;',
+        });
+        $('<div/>', {
+            class: 'foeName',
+            text: foeType.foeName
+        }).appendTo(foeTypeDiv);
+        $('<div/>', {
+            class: 'playerKillingFoe',
+            text: 'Weak to '+ foeType.spellWeakness.playerClass +"'s "+foeType.spellWeakness.spellName  
+        }).appendTo(foeTypeDiv);
+        $('<div/>', {
+            class: 'sequence',
+            text: 'Spell sequence:'+foeType.spellWeakness.arcaneSequence.join(',')
+        }).appendTo(foeTypeDiv);
+        foeTypeDiv.appendTo('#bestiary');
+
+    }
 }
 
 function regularGameStateUpdate(){
-    updateGameState(gameId, function(game){
+    updateGameState(currentGameId(), function(game){
         updateUIFromGameState(game);
     });
 }
 
 $(document).ready(function(){  
+    var gameId = currentGameId();
+    var playerId = userIdentifier();
     $('#playerId').html(playerId);
     $('#gameId').html(gameId);
     registerPlayer(gameId, playerId, function(player){
         $('#playerClass').html(player["playerClass"]);
         window.setInterval(regularGameStateUpdate, 500);
     });
+
     $("#startButton").click(function(){
         var gameStarted = false;
         if(lastGameState != null){
@@ -86,4 +115,22 @@ $(document).ready(function(){
         }
     });
 
+    $("#castButton").click(function(){
+        castSpell(gameId, playerId, gSequence, function(){});
+        gSequence = [];
+        $(".arcane").html("");
+    });
+    $("#resetButton").click(function(){
+        gSequence = [];
+        $(".arcane").html("");
+    });
+
+    $(".key").click(function(event){
+        var keyId = event.target.id;
+        keyId = keyId.replace("key-","");
+        if(gSequence.length < 3){
+            gSequence.push(keyId);
+        }
+        $("#arcane"+gSequence.length).html(keyId);
+    });
 });
