@@ -4,6 +4,7 @@
 	border:1px dashed black;
 	margin:5px; 
 	float:left;
+	text-align:center;
 	line-height: 50px;
 }
 
@@ -15,6 +16,7 @@
 	float:left;
 	text-align:center;
 	line-height: 50px;
+	cursor: pointer; cursor: hand;
 }
 
 #arcaneList{

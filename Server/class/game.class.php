@@ -20,6 +20,7 @@ class Game{
 	var $playingClasses = array();
 	var $waveInfo = array();
 	var $levelSucess = false;
+	var $levelFailure = false;
 	// Do not serialize debug
 	var $debug = array();
 
@@ -246,6 +247,7 @@ class Game{
 				// If the foe buffer is empty, WIN
 				//TODO Check that one player at last is alive :)
 				$this->levelSucess = true;
+				$this->gameStarted = false;
 			}else{
 				// If active foe buffer (1 foe for 1 player) is not full, we fill it
 				while (count($activeFoes) < count($this->players) && count($aliveFoesNotActive) != 0) {
@@ -291,6 +293,18 @@ class Game{
 					}
 				}
 			}
+		}
+		$anyPlayerAlive = false;
+		foreach ($this->players as $player) {
+			if($player->playerLife > 0){
+				$anyPlayerAlive = true;
+			}
+		}
+		if(!$anyPlayerAlive){
+			$this->levelFailure = true;
+			$this->gameStarted = false;
+		}else{
+			$this->levelFailure = false;
 		}
 		$this->save();
 	}

@@ -7,6 +7,15 @@ function updateUIFromGameState(game){
     }else{
         $("#startButton").html("Start game");   
     }
+    if(game.levelSucess){
+        $('#gameStatus').html("Sucess for level "+game.currentLevel);
+    }else if(game.levelFailure){
+        $('#gameStatus').html("You were slain in level "+game.currentLevel);
+    }else if(game.gameStarted){
+        $('#gameStatus').html("Level "+game.currentLevel+" playing !");
+    }else{
+        $('#gameStatus').html("Game not started for level "+game.currentLevel);        
+    }
     bestiary = game.players[userIdentifier()].bestiary;
     $('#playersSide').html('');
     $('#foesSide').html('');
