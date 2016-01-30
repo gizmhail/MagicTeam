@@ -1,55 +1,13 @@
 <?php
 
+include_once(dirname(__FILE__).'/foe.class.php');
+include_once(dirname(__FILE__).'/player.class.php');
+
 define("MAGE_CLASS_1", "Mage blanc");
 define("MAGE_CLASS_2", "Mage frost");
 define("MAGE_CLASS_3", "Mage feu");
 
-class Player{
-	var $playerId;
-	var $playerClass = false;
-	var $playerLife = 100;
-	var $bestiary = array();
-	var $keys = array();
 
-	function __construct($playerId){
-		$this->playerId = $playerId;
-	}
-}
-
-class Spell{
-	var $spellName;
-	var $playerClass;
-	var $arcaneSequence = array();
-	var $spellDamage = 50;
-
-	function __construct($name, $sequence, $playerClass, $damage = 50){
-		$this->spellName = $name;
-		$this->arcaneSequence = $sequence;
-		$this->spellDamage = $damage;
-		$this->playerClass = $playerClass;
-	}
-}
-
-class FoeType{
-	var $foeName;
-	var $foeMaxLife = 100;
-	var $spellWeakness;
-
-	function __construct($name, $weakness, $life = 100){
-		$this->foeName = $name;
-		$this->foeMaxLife = $life;
-		$this->spellWeakness = $weakness;
-	}
-}
-
-class Foe{
-	var $foeType;
-	var $foeLife;
-	function __construct($foeType){
-		$this->foeType = $foeType;
-		$this->foeLife = $foeType->foeMaxLife;
-	}
-}
 
 class Game{
 	var $gameId = false;
@@ -60,6 +18,8 @@ class Game{
 	var $levelInfo = array();
 	var $gameStarted = false;
 	var $playingClasses = array();
+	var $waveInfo = array();
+	var $levelSucess = false;
 
 	function __construct($gameId = false){
 		if($gameId === false){
@@ -72,6 +32,8 @@ class Game{
 		$this->creationDate = microtime(true);
 		// Load saved game, if it existed before
 		$this->loadSavedGame();
+		// If started, the engine evaluates the new game state
+		$this->gameProgression();
 	}
 
 	function startGame(){
@@ -110,7 +72,8 @@ class Game{
 	}
 
 	function resetLevel(){
-		$this->levelInfo = array("wave"=>array(), "activeFoes"=>array());
+		$this->levelSucess = false;
+		$this->waveInfo = array();
 		foreach ($this->players as $player) {
 			$player->playerLife = 100;
 			$player->bestiary = array();
@@ -187,7 +150,6 @@ class Game{
 		return $storageFile;
 	}
 
-
 	function save(){
 		$this->lastSaveDate = microtime(true);
 		$content = serialize($this);
@@ -205,7 +167,7 @@ class Game{
 			$this->currentLevel = $storedGame->currentLevel;
 			$this->gameStarted = $storedGame->gameStarted;
 			$this->playingClasses = $storedGame->playingClasses;
-			$this->levelInfo = $storedGame->levelInfo;
+			$this->waveInfo = $storedGame->waveInfo;
 		}
 	}
 
@@ -242,8 +204,77 @@ class Game{
 		$requiredClass = $foe->foeType->spellWeakness->playerClass;
 		if(in_array($requiredClass, $this->playingClasses)){
 			// The needed caster is in the game
-			$this->levelInfo["wave"][] = $foe;
+			$this->waveInfo[] = $foe;
 		}
+	}
+
+	function gameProgression(){
+		if($this->gameStarted){
+			$aliveFoes = array();
+			$aliveFoesNotActive = array();
+			$activeFoes = array();
+
+			foreach ($this->waveInfo as $foe) {
+				if($foe->foeLife > 0 && !$foe->hasFled){
+					$aliveFoes[] = $foe;
+					if(!$foe->active){
+						$aliveFoesNotActive[] = $foe;
+					}else{
+						$activeFoes[] = $foe;
+					}
+				}
+			}
+
+			if(count($aliveFoes) == 0){
+				// If the foe buffer is empty, WIN
+				$this->levelSucess = true;
+			}else{
+				// If active foe buffer (1 foe for 1 player) is not full, we fill it
+				while (count($activeFoes) < count($this->players) && count($aliveFoesNotActive) != 0) {
+					// We have a partially filled active foes buffer
+					$firstInactive = array_shift($aliveFoesNotActive);
+					$firstInactive->active = true;
+					$firstInactive->serverNextCastTime = microtime(true) + $firstInactive->foeType->castTime;
+					$firstInactive->timeBeforeNextCast = $firstInactive->foeType->castTime;
+					$firstInactive->entranceDate = microtime(true);
+					$activeFoes[] = $firstInactive;
+				}
+
+				// For each active foe, we update next cast time, and do damages if needed
+				foreach ($activeFoes as $foe) {
+					$delta = $foe->serverNextCastTime - microtime(true);
+					if($delta < 0 ){
+						// We cast the spell
+						$damage = $foe->foeType->damage;
+						//The target is the player who can hurt the foe (clever foe ;) ) 
+						$target = null;
+						foreach ($this->players as $player) {
+							if($player->playerClass == $foe->foeType->spellWeakness->playerClass){
+								$target = $player;
+							}
+						}
+						if($target){
+							$target->playerLife = max($target->playerLife - $damage, 0);
+							$foe->lastDamageDone = $damage;
+							$foe->lastDamageTargetId = $target->playerId;
+							// We prepare the next attack
+							//var_dump("".$delta." ".microtime(true)." ".$foe->serverNextCastTime);
+							$foe->serverNextCastTime = microtime(true) + $foe->foeType->castTime;
+							$foe->timeBeforeNextCast = $firstInactive->foeType->castTime;
+							if($target->playerLife == 0){
+								$foe->hasFled = true;
+							}
+						}else{
+							$foe->hasFled = true;
+							//TODO Handle this case: the player has been removed
+						}
+					}else{
+						$foe->timeBeforeNextCast = $delta;
+					}
+				}
+			}
+		}
+		$this->save();
 	}
 	/**
 	 * Game rules
@@ -266,14 +297,14 @@ class Game{
 		$fireTornadoSpell = new Spell("Tornade de flammes", array("i","j","k"), MAGE_CLASS_3, 50);
 
 		// Blanc
-		$zombieFoeType = new FoeType("Zombie", $lightStrikeSpell, 100);
-		$vampireFoeType = new FoeType("Vampire", $sacredLightSpell, 100);
+		$zombieFoeType = new FoeType("Zombie", $lightStrikeSpell, 100, 8);
+		$vampireFoeType = new FoeType("Vampire", $sacredLightSpell, 100, 8);
 		// Glace
-		$fireElemFoeType = new FoeType("Elémentaire de feu", $frostBoltSpell, 100);
-		$sparkFoeType = new FoeType("Etincelle", $iceLanceSpell, 50);
+		$fireElemFoeType = new FoeType("Elémentaire de feu", $frostBoltSpell, 100, 8);
+		$sparkFoeType = new FoeType("Etincelle", $iceLanceSpell, 50, 8);
 		// Fire
-		$iceElemFoeType = new FoeType("Elémentaire de glace", $fireballSpell, 100);
-		$iceGiantFoeType = new FoeType("Géant du froid", $fireTornadoSpell, 100);
+		$iceElemFoeType = new FoeType("Elémentaire de glace", $fireballSpell, 100, 8);
+		$iceGiantFoeType = new FoeType("Géant du froid", $fireTornadoSpell, 100, 8);
 
 		// -- Foe types	
 		$this->addFoeToBestiary($zombieFoeType);
