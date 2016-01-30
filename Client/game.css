@@ -46,7 +46,7 @@ body{
 #arcaneList{
 	width:90%;
 	background-color: black;
-	background-color: red; 
+	background-color: yellow; 
 }
 
 #input{
@@ -62,4 +62,13 @@ body{
 	height:20px;
 	width:75px;
 	margin:5px; 
+}
+
+.bestiary{
+	margin-top:5px;
+	padding: 5px;
+}
+
+.foeName{
+	font-weight: bold;
 }
