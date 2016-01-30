@@ -25,6 +25,8 @@ class Foe{
 	var $entranceDate = null;
 	var $lastDamageDone = 0;
 	var $lastDamageTargetId = null;
+	var $foeId = null;
+	var $targetPlayerClassName = null;
 	// A foe which has killed its player can flee (can't be active, but is not dead)
 	var $hasFled = false;
 	//TODO Had a flag
@@ -32,5 +34,11 @@ class Foe{
 	function __construct($foeType){
 		$this->foeType = $foeType;
 		$this->foeLife = $foeType->foeMaxLife;
+		$this->foeId = md5($foeType->foeName.microtime(true));
+		$this->targetPlayerClassName = $this->targetPlayerClass();
+	}
+
+	function targetPlayerClass(){
+		return $this->foeType->spellWeakness->playerClass;
 	}
 }

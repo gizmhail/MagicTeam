@@ -2,6 +2,10 @@
 var gSequence = [];
 
 function updateUIFromGameState(game){
+    // Phaser update
+    magicTeamGame.state.states[magicTeamGame.state.current].updateUIWithGameInfo(game);
+
+    // Debug update
     if(game != null && game["gameStarted"]){
         $("#startButton").html("Stop game");
     }else{

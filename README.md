@@ -16,5 +16,13 @@ As you progress among levels, the simple arcane symbols called "letters" will be
 # License
 Creative Commons (Attribution, Share alike)
 
+# Resources 
 
-
+## Graphical assets
+* http://untamed.wild-refuge.net/rmxpresources.php?characters - Characters by Sithjester
+* http://opengameart.org/content/large-nature-background - © 2012-2013 Julien Jorge <julien.jorge@stuff-o-matic.com>
+* Nuvola icons
+** https://commons.wikimedia.org/wiki/File:Nuvola_Anti_Aisatsu.png
+** https://commons.wikimedia.org/wiki/File:Nuvola_apps_edu_languages.png
+** https://commons.wikimedia.org/wiki/File:Contatti.png
+* http://opengameart.org/content/zombie-rpg-sprites - Curt - cjc83486 http://opengameart.org/content/zombie-rpg-sprites

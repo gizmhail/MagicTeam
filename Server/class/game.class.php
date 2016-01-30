@@ -269,7 +269,7 @@ class Game{
 						//The target is the player who can hurt the foe (clever foe ;) ) 
 						$target = null;
 						foreach ($this->players as $player) {
-							if($player->playerClass == $foe->foeType->spellWeakness->playerClass){
+							if($player->playerClass == $foe->targetPlayerClass() ){
 								$target = $player;
 							}
 						}
