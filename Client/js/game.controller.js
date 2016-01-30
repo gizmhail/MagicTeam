@@ -124,10 +124,14 @@ $(document).ready(function(){
         }
     });
 
-    $("#castButton").click(function(){
+    function castPreparedSpell(){
         castSpell(gameId, playerId, gSequence, function(){});
         gSequence = [];
         $(".arcane").html("");
+    }
+
+    $("#castButton").click(function(){
+        castPreparedSpell();
     });
     $("#resetButton").click(function(){
         gSequence = [];
@@ -142,6 +146,10 @@ $(document).ready(function(){
                 gSequence.push(keyId);
             }
             $("#arcane"+gSequence.length).html(keyId);
+            if(gSequence.length == 3){
+                // Automatic cast (with a small delay to SEE third arcane symbol pressed)
+                window.setTimeout(function(){castPreparedSpell()}, 500);
+            }
         }
     }
 
@@ -184,4 +192,19 @@ $(document).ready(function(){
         pressKey(keyId);
 
     });
+
+   $("#spellBookToogle").click(function(event){
+        $('#input').show();
+        $('#bestiary').hide();
+        $('#bestiaryToogle').css("background-color", "white");
+        $('#spellBookToogle').css("background-color", "yellow");
+    });
+   $("#bestiaryToogle").click(function(event){
+        $('#bestiary').show();
+        $('#input').hide();
+        $('#bestiaryToogle').css("background-color", "yellow");
+        $('#spellBookToogle').css("background-color", "white");
+        
+    });
+
 });

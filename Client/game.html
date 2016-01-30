@@ -5,7 +5,7 @@
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name = "viewport" content = "width = device-width, initial-scale = 1.0, user-scalable = no">
 
-        <title>hello phaser!</title>
+        <title>MagiTeam</title>
         <script src="js/phaser.min.js"></script>
 		<script src="js/jquery.min.js"></script>
         <script src="js/tools.js"></script>
@@ -28,26 +28,37 @@
             <div id='foesSide' style='float:right;width:50%'></div>
             <div style='clear:both'></div>
         </div>
+
+        <div style='margin-top:5px'>
+            <div id='bestiaryToogle' class='toogleZone' style='float:left;width:48%;border:2px solid brown'>
+                <div style='text-align:center'><b>Bestiary</b> <br/><small>(<i>the foes against which your FRIEND's spells are effective - tell them what to cast</i>)</small></div>
+            </div>
+            <div id='spellBookToogle' class='toogleZone' style='float:right;width:48%;border:2px solid brown;background-color:yellow'>
+                <div style='text-align:center'><b>Spellbook</b> <br/><small>(<i>combine symbols to launch YOUR spells - as instructed by your friends</i>)</small></div>
+            </div>
+            <div style='clear:both'></div>
+        </div>
+
         <div id='gameEntries' style='margin-top:5px'>
-            <div style='float:left;width:50%'>
-                <div style='text-align:center'><b>Bestiary</b> <br/><small>(<i>the foes against which your FRIEND's spells are effective</i>)</small></div>
-                <div id='bestiary'></div>
+            <div style='float:left;width:100%'>
+                <div id='bestiary' style='display:none'></div>
 
             </div>
-            <div style='float:right;width:50%'>
-                <div style='text-align:center'><b>Spellbook</b> <br/><small>(<i>combine symbols to launch YOUR spells - as instructed by your friends</i>)</small></div>
+            <div style='float:right;width:100%'>
                 <div id='input'>
-                    <div  id='arcaneList'>
+                    <div  id='arcaneList' style='width:100%'>
                         <span>
+                            <div style='float:left;width:180px'>Press 3 arcane symbol to cast a spell</div>
                             <div id='arcane1' class='arcane'> </div>
                             <div id='arcane2' class='arcane'> </div>
                             <div id='arcane3' class='arcane'> </div>
                         </span>
-                        <button id='castButton'>Cast spell</button>
-                        <button id='resetButton'>Reset spell</button>
+                        <button id='castButton' style='display:none'>Cast spell</button>
+                        <button id='resetButton' style='display:none'>Reset spell</button>
                         <div style='clear:both'></div>
                     </div>
-                    <div id="keys">
+                    <div id="keys" style='background-color:#888888;overflow: hidden;'>
+                        <div>Your arcane symbols</div>
                         <div id='key-a' class='key'>a</div>
                         <div id='key-z' class='key'>z</div>
                         <div id='key-e' class='key'>e</div>
@@ -65,12 +76,16 @@
             <div style='clear:both'></div>
         </div>
     	<div>
-            Debug info
-            <ul>
-                <li>Player id: <span id='playerId'></span></li>
-                <li>Player class: <span id='playerClass'></span></li>
-                <li>Game id: <span id='gameId'></span></li>
-            </ul>
+            <small><i>
+                <fieldset>
+                    <legend>Game info</legend>
+                    <ul>
+                        <li>Player id: <span id='playerId'></span></li>
+                        <li>Player class: <span id='playerClass'></span></li>
+                        <li>Game id: <span id='gameId'></span></li>
+                    </ul>
+                </fieldset>
+            </i></small>
     	</div>
     </body>
 </html>

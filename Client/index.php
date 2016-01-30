@@ -4,7 +4,7 @@
         <meta charset="UTF-8" />
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name = "viewport" content = "width = device-width, initial-scale = 1.0, user-scalable = no">
-        <title>hello phaser!</title>
+        <title>MagicTeam</title>
         <script src="js/phaser.min.js"></script>
         <script src="js/jquery.min.js"></script>
         <script src="js/tools.js"></script>
