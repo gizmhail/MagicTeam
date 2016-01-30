@@ -35,6 +35,7 @@ function registerPlayer(gameId, playerId, callback){
     });
 }
 
+
 function updateGameState(gameId, callback){
 	$.ajax({
         url: serverBaseUrl+'/gameManager.php?request=gameState&gameId='+gameId,

@@ -222,11 +222,14 @@ class Game{
 					}else{
 						$activeFoes[] = $foe;
 					}
+				}else{
+					$foe->active = false;
 				}
 			}
 
 			if(count($aliveFoes) == 0){
 				// If the foe buffer is empty, WIN
+				//TODO Check that one player at last is alive :)
 				$this->levelSucess = true;
 			}else{
 				// If active foe buffer (1 foe for 1 player) is not full, we fill it
@@ -300,7 +303,7 @@ class Game{
 		$zombieFoeType = new FoeType("Zombie", $lightStrikeSpell, 100, 8);
 		$vampireFoeType = new FoeType("Vampire", $sacredLightSpell, 100, 8);
 		// Glace
-		$fireElemFoeType = new FoeType("Elémentaire de feu", $frostBoltSpell, 100, 8);
+		$fireElemFoeType = new FoeType("Elémentaire de feu", $frostBoltSpell, 100, 10);
 		$sparkFoeType = new FoeType("Etincelle", $iceLanceSpell, 50, 8);
 		// Fire
 		$iceElemFoeType = new FoeType("Elémentaire de glace", $fireballSpell, 100, 8);
