@@ -13,6 +13,8 @@ class Game{
 	var $players = array();
 	var $creationDate;
 	var $lastSaveDate;
+	var $currentLevel = 1;
+	var $gameStarted = false;
 	function __construct($gameId = false){
 		if($gameId === false){
 			$this->gameId = $this->generateGameId();

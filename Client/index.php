@@ -13,7 +13,7 @@
                     console.log("Creating new game");
                     createGame(function(data){
                         console.log(data);
-                        window.location.href = "game.php?gameId="+data["gameId"] 
+                        window.location.href = "game.html?gameId="+data["gameId"] 
                     });
                 });
             });
@@ -33,9 +33,15 @@
                 // TODO Request in json, remove php from client
                 include(dirname(dirname(__FILE__)).'/Server/class/game.class.php');
 
-                foreach (Game::existingGames() as $game) {
+                foreach (Game::existingGames() as $gameId) {
+                    $game = new Game($gameId);
                 ?>
-                <li><a href='game.php?gameId=<?php echo $game?>'>Game <?php echo $game?></a></li>
+                <li>
+                    <a href='game.html?gameId=<?php echo $gameId?>'>
+                        Game <?php echo $gameId?> 
+                        (<?php echo count($game->players)?>/<?php echo count($game->gameClasses()) ?>)
+                    </a>
+                </li>
                 <?php
                 }
             ?>

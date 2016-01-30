@@ -39,6 +39,8 @@ if($request == "registerPlayer"){
 		$data = array("error"=>"Missing parameters (playerId and gameId needed)");
 	}
 }
+//if($request == "startGame"){}
+//if($request == "castSpell"){}
 
 // Output formating
 
