@@ -27,10 +27,28 @@ class Game{
 		$this->loadGame();
 	}
 
+	function startGame(){
+		if(count($this->players)>1){
+			$this->gameStarted = true;
+			$this->save();
+		}
+	}
+	
+	function stopGame(){
+		$this->gameStarted = false;
+		$this->save();
+	}
+	
 	function generateGameId(){
 		$time = microtime(true);
 		$id = md5($time);
 		return $id;
+	}
+
+	function loadLevel($level){
+		$this->currentLevel = $level;
+		//TODO Reset player lives
+		//TODO reset mobs (and their lives) according to level design
 	}
 
 	function addPlayerId($playerId){
@@ -115,6 +133,9 @@ class Game{
 			// Bring back stored game info to this one
 			$this->creationDate = $storedGame->creationDate;
 			$this->players = $storedGame->players;
+			$this->lastSaveDate = $storedGame->lastSaveDate;
+			$this->currentLevel = $storedGame->currentLevel;
+			$this->gameStarted = $storedGame->gameStarted;
 		}
 	}
 

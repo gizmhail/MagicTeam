@@ -39,7 +39,24 @@ if($request == "registerPlayer"){
 		$data = array("error"=>"Missing parameters (playerId and gameId needed)");
 	}
 }
-//if($request == "startGame"){}
+if($request == "startGame"){
+	if($gameId){
+		$game = new Game($gameId);
+		$game->startGame();
+		$data = $game;
+	}else{
+		$data = array("error"=>"Missing parameters (gameId needed)");
+	}
+}
+if($request == "stopGame"){
+	if($gameId){
+		$game = new Game($gameId);
+		$game->stopGame();
+		$data = $game;
+	}else{
+		$data = array("error"=>"Missing parameters (gameId needed)");
+	}
+}
 //if($request == "castSpell"){}
 
 // Output formating

@@ -7,16 +7,7 @@
 		<script src="js/jquery.min.js"></script>
         <script src="js/tools.js"></script>
         <script src="js/game.js"></script>
-        <script type="text/javascript">
-            $(document).ready(function(){
-                $('#playerId').html(playerId);
-                $('#gameId').html(gameId);
-                registerPlayer(gameId, playerId, function(player){
-                    $('#playerClass').html(player["playerClass"]);
-                })
-            });
-
-        </script>
+        <script src="js/game.controller.js"></script>
     </head>
     <body>
         <div>
