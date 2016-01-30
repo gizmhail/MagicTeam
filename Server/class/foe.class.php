@@ -11,7 +11,7 @@ class FoeType{
 		$this->foeName = $name;
 		$this->foeMaxLife = $life;
 		$this->spellWeakness = $weakness;
-		$this->castTime = $castTime;
+		$this->castTime = max(1.1, $castTime);// The engine need at least a 1s cast time
 		$this->damage = $damage;
 	}
 }

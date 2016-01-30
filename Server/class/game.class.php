@@ -7,6 +7,7 @@ define("MAGE_CLASS_1", "Mage blanc");
 define("MAGE_CLASS_2", "Mage frost");
 define("MAGE_CLASS_3", "Mage feu");
 
+define("SERVER_SPEED", 1);
 
 
 class Game{
@@ -233,6 +234,7 @@ class Game{
 							// The player that can kill this monster is not here anymore...we'll be nice, and skip this one :)
 							// (otherwise the remaining players could only die, they would be doomed ! )
 							$foe->hasFled = true;
+							$foe->active = false;
 						}
 					}else{
 						$activeFoes[] = $foe;
@@ -274,7 +276,9 @@ class Game{
 							}
 						}
 						if($target){
-							$target->playerLife = max($target->playerLife - $damage, 0);
+							$currentLife = $target->playerLife;
+							$currentLife = $currentLife - $damage;
+							$target->playerLife = max($currentLife, 0);
 							$foe->lastDamageDone = $damage;
 							$foe->lastDamageTargetId = $target->playerId;
 							// We prepare the next attack
@@ -283,6 +287,7 @@ class Game{
 							$foe->timeBeforeNextCast = $foe->foeType->castTime;
 							if($target->playerLife == 0){
 								$foe->hasFled = true;
+								$foe->active = false;
 							}
 						}else{
 							$foe->hasFled = true;
@@ -393,14 +398,14 @@ class Game{
 		$fireTornadoSpell = new Spell("Tornade de flammes", array("i","j","k"), MAGE_CLASS_3, 50);
 
 		// Blanc
-		$zombieFoeType = new FoeType("Zombie", $lightStrikeSpell, 100, 9);
-		$vampireFoeType = new FoeType("Vampire", $sacredLightSpell, 100, 7);
+		$zombieFoeType = new FoeType("Zombie", $lightStrikeSpell, 100, 9/SERVER_SPEED);
+		$vampireFoeType = new FoeType("Vampire", $sacredLightSpell, 100, 7/SERVER_SPEED);
 		// Glace
-		$fireElemFoeType = new FoeType("Elémentaire de feu", $frostBoltSpell, 100, 10);
-		$sparkFoeType = new FoeType("Etincelle", $iceLanceSpell, 50, 6);
+		$fireElemFoeType = new FoeType("Elémentaire de feu", $frostBoltSpell, 100, 10/SERVER_SPEED);
+		$sparkFoeType = new FoeType("Etincelle", $iceLanceSpell, 50, 6/SERVER_SPEED);
 		// Fire
-		$iceElemFoeType = new FoeType("Elémentaire de glace", $fireballSpell, 100, 11);
-		$iceGiantFoeType = new FoeType("Géant du froid", $fireTornadoSpell, 100, 9);
+		$iceElemFoeType = new FoeType("Elémentaire de glace", $fireballSpell, 100, 11/SERVER_SPEED);
+		$iceGiantFoeType = new FoeType("Géant du froid", $fireTornadoSpell, 100, 9/SERVER_SPEED);
 
 		// -- Foe types	
 		$this->addFoeToBestiary($zombieFoeType);

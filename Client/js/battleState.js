@@ -161,26 +161,40 @@ battleState.prototype = {
             sprite.kill();
         };
 
-        // We remove any previously used sprite
+        // We remove any previously used foe sprite
         for (var j = 0; j < this.foeSprites.length; j++) {
             var foeSprite = this.foeSprites[j];
+            var foe = null;
+            var targetPlayer = null;
             var stillUsed = false;
             for (var i = 0; i < game.waveInfo.length; i++) {
-                var foe = game.waveInfo[i];
-                if(foe.foeId == foeSprite.foeId && foe.alive){
-                    //We also check that the targeted user is still alive ;)
-                    for (var playerId in game.players) {
-                        var player = game.players[playerId];
-                        if(player.playerClass == foe.targetPlayerClassName && player.playerLife >0){
-                           //stillUsed = true;
-                        }
+                if(game.waveInfo[i].foeId == foeSprite.foeId){
+                    foe = game.waveInfo[i];
+                    if(foe.active){
+                        //We also check that the targeted user is still alive ;)
+                        for (var playerId in game.players) {
+                            var player = game.players[playerId];
+                            if(player.playerClass == foe.targetPlayerClassName){
+                                targetPlayer = player;
+                                if(player.playerLife >0){
+                                    stillUsed = true;
+                                }
+                            }
+                        }                        
                     }
                 }
             }
-            if(!stillUsed){
+            if(!stillUsed && foeSprite.alive){
+                //console.log("Killing foe sprite", foeSprite, foeSprite.foeId, targetPlayer, foe);
+                foeSprite.foeId = null;
+                if(foeSprite.attackTween){
+                    //console.log("Stopping tween", foeSprite.attackTween);
+                    foeSprite.attackTween.stop();
+                }
+                foeSprite.attackTween = null;
                 foeSprite.kill();
             }
-        };
+        }
 
         for (var i = 0; i < game.waveInfo.length; i++) {
             var foe = game.waveInfo[i];
@@ -191,56 +205,62 @@ battleState.prototype = {
                    targetPlayer = player;
                 }
             }
-            if(foe.active && player.playerLife > 0){
-                console.log("Active foe", foe.foeId, foe);
-                var foeSprite = null;
-                var spriteFound = false;
-                for (var j = 0; j < this.foeSprites.length; j++) {
-                    if(this.foeSprites[j].foeId == foe.foeId){
-                        foeSprite = this.foeSprites[j];
-                        spriteFound = true;
-                        break;
-                    }
-                };
-                if(!spriteFound){
-                    for (var k = 0; k < 3; k++) {
-                        var sprite = this.foeSprites[k];
-                        if(sprite.foeId == null || !sprite.alive){
-                            sprite.revive();
-                            sprite.foeId = foe.foeId;
-                            sprite.x = sprite.originalPosition.x;
-                            sprite.y = sprite.originalPosition.y;
-                            foeSprite = sprite;
+            if(foe.active){
+                if(player.playerLife > 0){
+                    //console.log("Active foe", foe.foeId, foe);
+                    var foeSprite = null;
+                    var spriteFound = false;
+                    for (var j = 0; j < this.foeSprites.length; j++) {
+                        if(this.foeSprites[j].foeId == foe.foeId){
+                            foeSprite = this.foeSprites[j];
+                            spriteFound = true;
                             break;
                         }
+                    };
+                    if(!spriteFound){
+                        for (var k = 0; k < 3; k++) {
+                            var sprite = this.foeSprites[k];
+                            if(sprite.foeId == null || !sprite.alive){
+                                sprite.revive();
+                                sprite.foeId = foe.foeId;
+                                sprite.attackTween = null;
+                                // console.log("---- ", foe.foeId);
+                                sprite.x = sprite.originalPosition.x;
+                                sprite.y = sprite.originalPosition.y;
+                                foeSprite = sprite;
+                                break;
+                            }
+                        }
                     }
-                }
-                if(foeSprite != null){
-                    var percent = foe.foeLife / foe.foeType.foeMaxLife;
-                    foeSprite.lifeBarFull.crop(new Phaser.Rectangle(0, 0, percent*48, 3));
-                    foeSprite.revive();
-                    if(foe.timeBeforeNextCast != null){
-                        var targetMageClass = foe.targetPlayerClassName;
-                        var mageSprite = this.mageSprites[targetMageClass];
-                        // console.log("---- mageSprite", mageSprite);
-                        if(foeSprite.attackTween){
-                            console.log("Stopping tween", foeSprite.attackTween);
-                            foeSprite.attackTween.stop();
+                    if(foeSprite != null){
+                        var percent = foe.foeLife / foe.foeType.foeMaxLife;
+                        foeSprite.lifeBarFull.crop(new Phaser.Rectangle(0, 0, percent*48, 3));
+                        foeSprite.revive();
+                        console.log("---", foeSprite);
+                        if(foe.timeBeforeNextCast != null){
+                            var targetMageClass = foe.targetPlayerClassName;
+                            var mageSprite = this.mageSprites[targetMageClass];
+                            //console.log("---- mageSprite", mageSprite);
+                            //console.log(foeSprite.attackTween, foe.timeBeforeNextCast);
+                            var tweenRunning = foeSprite.attackTween == null || foeSprite.attackTween.isRunning == false;
+                            if(tweenRunning && foe.timeBeforeNextCast < (foe.foeType.castTime - 1)){
+                                //console.log("No tween", foeSprite.attackTween);
+                                foeSprite.attackTween = magicTeamGame.add.tween(foeSprite)
+                                    .to( {x: mageSprite.x + 10, y: mageSprite.y}, 1000*foe.timeBeforeNextCast);
+                                foeSprite.attackTween.start();
+                                //console.log("Starting tween", foeSprite.attackTween);
+                            }else{
+                                foeSprite.x = foeSprite.originalPosition.x;
+                                foeSprite.y = foeSprite.originalPosition.y;
+                            }
                         }
-                        if(foe.timeBeforeNextCast < (foe.foeType.castTime - 1)){
-                            foeSprite.attackTween = magicTeamGame.add.tween(foeSprite)
-                                .to( {x: mageSprite.x + 10, y: mageSprite.y}, 1000*foe.timeBeforeNextCast);
-                            foeSprite.attackTween.start();
-                            console.log("Starting tween", foeSprite.attackTween);
-                        }else{
-                            foeSprite.x = foeSprite.originalPosition.x;
-                            foeSprite.y = foeSprite.originalPosition.y;
-                        }
+                    }else{
+                        console.log("Unable to find a sprite for foe: "
+                            , foe
+                            , this.foeSprites[0].foeId, this.foeSprites[1].foeId, this.foeSprites[2].foeId);
                     }
                 }else{
-                    console.log("Unable to find a sprite for foe: "
-                        , foe
-                        , this.foeSprites[0].foeId, this.foeSprites[1].foeId, this.foeSprites[2].foeId);
+                    console.log("foe active but player dead", foe, player);
                 }
             }            
         }
