@@ -406,11 +406,11 @@ class Game{
 		$zombieFoeType = new FoeType("Zombie", $lightStrikeSpell, 100, 9/SERVER_SPEED);
 		$vampireFoeType = new FoeType("Vampire", $sacredLightSpell, 100, 7/SERVER_SPEED);
 		// Glace
-		$fireElemFoeType = new FoeType("Elémentaire de feu", $frostBoltSpell, 100, 10/SERVER_SPEED);
-		$sparkFoeType = new FoeType("Etincelle", $iceLanceSpell, 50, 6/SERVER_SPEED);
+		$fireElemFoeType = new FoeType("Fire master", $frostBoltSpell, 100, 10/SERVER_SPEED);
+		$sparkFoeType = new FoeType("Sparkle", $iceLanceSpell, 50, 6/SERVER_SPEED);
 		// Fire
-		$iceElemFoeType = new FoeType("Elémentaire de glace", $fireballSpell, 100, 11/SERVER_SPEED);
-		$iceGiantFoeType = new FoeType("Géant du froid", $fireTornadoSpell, 100, 9/SERVER_SPEED);
+		$iceElemFoeType = new FoeType("Ice elemental", $fireballSpell, 100, 11/SERVER_SPEED);
+		$iceGiantFoeType = new FoeType("Cold giant", $fireTornadoSpell, 100, 9/SERVER_SPEED);
 
 		// -- Foe types	
 		$this->addFoeToBestiary($zombieFoeType);
@@ -421,6 +421,12 @@ class Game{
 		$this->addFoeToBestiary($iceGiantFoeType);
 
 		// -- Foe waves
+		$this->addFoeInstanceToWave(new Foe($zombieFoeType));
+		$this->addFoeInstanceToWave(new Foe($fireElemFoeType));
+		$this->addFoeInstanceToWave(new Foe($iceElemFoeType));
+		$this->addFoeInstanceToWave(new Foe($vampireFoeType));
+		$this->addFoeInstanceToWave(new Foe($sparkFoeType));
+		$this->addFoeInstanceToWave(new Foe($iceGiantFoeType));
 		$this->addFoeInstanceToWave(new Foe($zombieFoeType));
 		$this->addFoeInstanceToWave(new Foe($fireElemFoeType));
 		$this->addFoeInstanceToWave(new Foe($iceElemFoeType));

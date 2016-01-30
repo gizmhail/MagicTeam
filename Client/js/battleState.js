@@ -17,6 +17,11 @@ battleState.prototype = {
         magicTeamGame.load.image('foe_active', 'assets/foe_active.png');
         magicTeamGame.load.image('foe_absent', 'assets/foe_absent.png');
         magicTeamGame.load.image('foe_killed', 'assets/foe_killed.png');
+        magicTeamGame.load.image('vampire', 'assets/drow_male1.png');
+        magicTeamGame.load.image('giant', 'assets/drax.png');
+        magicTeamGame.load.image('iceElemental', 'assets/bahamut.png');
+        magicTeamGame.load.image('sparkle', 'assets/rincewind.png');
+        magicTeamGame.load.image('fireTornadoMage', 'assets/rincewind.png');
         magicTeamGame.load.spritesheet('zombie', 'assets/ZombieSpriteSheet.png', 40, 37);
 
 
@@ -245,6 +250,26 @@ battleState.prototype = {
                                 // console.log("---- ", foe.foeId);
                                 sprite.x = sprite.originalPosition.x;
                                 sprite.y = sprite.originalPosition.y;
+                                var texture = "zombie";
+                                if(foe.foeType.foeName == "Vampire"){
+                                    texture = "vampire";
+                                }
+                                if(foe.foeType.foeName == "Sparkle"){
+                                    texture = "sparkle";
+                                }
+                                if(foe.foeType.foeName == "Fire master"){
+                                    texture = "fireTornadoMage";
+                                }
+                                if(foe.foeType.foeName == "Cold giant"){
+                                    texture = "giant";
+                                }
+                                if(foe.foeType.foeName == "Ice elemental"){
+                                    texture = "iceElemental";
+                                }
+                                if(sprite.foeTexture != texture){
+                                    sprite.loadTexture(texture, 0, false);
+                                    sprite.foeTexture = texture;
+                                }
                                 foeSprite = sprite;
                                 break;
                             }
