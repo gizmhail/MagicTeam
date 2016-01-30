@@ -1,6 +1,6 @@
 This game is (currently!) being developed for the Global Game Jam 2016
 
-== Principle ==
+# Principle 
 The game will be a mix between Magicka and Spaceteam.
 Indeed, the goal of the game is to achieve a maximum auditive chaos ^_^
 
@@ -13,7 +13,7 @@ And thus, you are obliged to quickly communicate together outside of the video g
 
 As you progress among levels, the simple arcane symbols called "letters" will be replaced by (kitten) images, complex symbol, audio symbols, ....
 
-== License ==
+# License
 Creative Commons (Attribution, Share alike)
 
 
