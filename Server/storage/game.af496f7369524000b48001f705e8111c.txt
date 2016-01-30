@@ -1,0 +1,1 @@
+O:4:"Game":3:{s:6:"gameId";s:32:"af496f7369524000b48001f705e8111c";s:7:"players";a:2:{i:1454112659202;O:6:"Player":2:{s:8:"playerId";s:13:"1454112659202";s:11:"playerClass";s:10:"Mage blanc";}i:1454112672931;O:6:"Player":2:{s:8:"playerId";s:13:"1454112672931";s:11:"playerClass";s:9:"Mage noir";}}s:12:"creationDate";d:1454115684.5906050205230712890625;}
