@@ -9,7 +9,7 @@ You have to cast spells to fight your foes, and only some spells can hurt a give
 To cast a spell, you have to send each arcane symbols in the proper order, as written in the bestiary (where for a given creature, the appropriate spell is given)
 
 ...but there is a twist: your bestiary does NOT contain your spells, but the spells of your teamates.
-And thus, you are obliged to quickly communicate together outside of the video game, by whisping/telling/HURLING the commands to your teamates
+And thus, you are obliged to quickly communicate together outside of the video game, by whisping/telling/YELLING the commands to your teamates
 
 (in progress) As you progress among levels, the simple arcane symbols called "letters" will be replaced by (kitten) images, complex symbol, audio symbols, ....
 
