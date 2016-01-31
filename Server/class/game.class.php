@@ -9,7 +9,7 @@ define("MAGE_CLASS_2", "Mage frost");
 define("MAGE_CLASS_3", "Mage feu");
 */
 
-define("MAX_GAME_LEVEL", 3);
+define("MAX_GAME_LEVEL", 4);
 
 define("MAGE_CLASS_1", "White mage");
 define("MAGE_CLASS_2", "Frost mage");
@@ -591,9 +591,9 @@ class Game{
 	}
 
 	function loadLevel4(){	
-		$speed = $this->speed*1.3;
+		$speed = $this->speed;
 		$playerStrength = 1;
-		$foesStrength = 2;
+		$foesStrength = 1.5;
 		$availableKeys = array("m","a","o","i","c","e","j","k","z");
 		$this->loadBaseLevelTemplate($availableKeys, $speed, $playerStrength, $foesStrength);
 

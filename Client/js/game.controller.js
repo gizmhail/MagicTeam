@@ -142,7 +142,7 @@ function touchKeyEventHandling(event){
     var now = Date.now();
     if(lastTouchEnd != null){
         var deltaTime = now - lastTouchEnd;
-        if(deltaTime < 500){
+        if(deltaTime < 200){
             touchOk = false;
         }
     }
@@ -155,6 +155,7 @@ function touchKeyEventHandling(event){
         event.stopPropagation()             
     }
 }
+
 function updateKeysCallbacks(){
     $('.key').on('touchstart', function(event) {
         lastTouchEnd = null;
