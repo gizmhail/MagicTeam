@@ -172,6 +172,19 @@ function updateKeysCallbacks(){
     });        
 }
 
+function restartGame(){
+    startGame(gameId, $("#level").val(), function(game){
+        updateUIFromGameState(lastGameState);
+        if(Object.keys(game.players).length < 2){
+            var displayedId = currentGameId();
+            if(displayedId.length>13){
+                displayedId = displayedId.substring(0,10)+"...";
+            }
+            $('#gameStatus').html("<span style='fint-weight:bold;color:red'>Not enough players: bring friends to game '"+displayedId+"' !</span>");
+        }
+    });
+}
+
 $(document).ready(function(){  
     var gameId = currentGameId();
     var playerId = userIdentifier();
@@ -188,16 +201,7 @@ $(document).ready(function(){
             gameStarted = lastGameState["gameStarted"]
         }
         if(!gameStarted){
-            startGame(gameId,function(game){
-                updateUIFromGameState(lastGameState);
-                if(Object.keys(game.players).length < 2){
-                    var displayedId = currentGameId();
-                    if(displayedId.length>13){
-                        displayedId = displayedId.substring(0,10)+"...";
-                    }
-                    $('#gameStatus').html("<span style='fint-weight:bold;color:red'>Not enough players: bring friends to game '"+displayedId+"' !</span>");
-                }
-            });
+            restartGame();
         }else{
             stopGame(gameId,function(game){
                 updateUIFromGameState(lastGameState);
@@ -236,7 +240,7 @@ $(document).ready(function(){
                 break;
             default: // Letter probably
                 var keyId = String.fromCharCode(e.which).toLowerCase();
-                console.log(e, keyId);
+                // console.log(e, keyId);
                 pressKey(keyId);
         }
 
@@ -245,7 +249,7 @@ $(document).ready(function(){
     function showBestiary(){
         $('#bestiary').show();
         $('#input').hide();
-        $('#bestiaryToogle').css("background-color", "yellow");
+        $('#bestiaryToogle').css("background-color", "#FFE4B5");
         $('#spellBookToogle').css("background-color", "white");
     }
 
@@ -253,7 +257,7 @@ $(document).ready(function(){
         $('#input').show();
         $('#bestiary').hide();
         $('#bestiaryToogle').css("background-color", "white");
-        $('#spellBookToogle').css("background-color", "yellow");        
+        $('#spellBookToogle').css("background-color", "#FFE4B5");        
     }
     $("#spellBookToogle").click(function(event){
         showSpellBook();
@@ -261,6 +265,10 @@ $(document).ready(function(){
 
     $("#bestiaryToogle").click(function(event){
         showBestiary();        
+    });
+    
+    $("#level").change(function(event){
+        restartGame();      
     });
 
     if(getUrlParameter("debug") == "1"){

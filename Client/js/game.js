@@ -65,9 +65,9 @@ function updateGameState(gameId, callback){
     });
 }
 
-function startGame(gameId, callback){
+function startGame(gameId, level, callback){
 	$.ajax({
-        url: serverBaseUrl+'/gameManager.php?request=startGame&gameId='+gameId,
+        url: serverBaseUrl+'/gameManager.php?request=startGame&gameId='+gameId+"&level="+level,
         dataType: 'jsonp',
         success: function(data){
         	console.log("startGame", data);

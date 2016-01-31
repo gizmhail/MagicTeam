@@ -4,6 +4,7 @@ var battleState = function(){
     this.foeSprites = [];
     this.foeIndicatorSprites = [];
     this.mageKeys = [gFireMageKey, gFrostMageKey, gWhiteMageKey];
+    this.whiteEmitter = null;
 };
 
 battleState.prototype = { 
@@ -111,16 +112,16 @@ battleState.prototype = {
         var emptyBar = magicTeamGame.add.bitmapData(600, 200); 
         emptyBar.ctx.beginPath();
         emptyBar.ctx.rect(0, 0, 600, 200);
-        emptyBar.ctx.fillStyle = '#ffffff';
+        emptyBar.ctx.fillStyle = 'brown';
         emptyBar.ctx.fill();
         var fullBar = magicTeamGame.add.bitmapData(600, 200); 
         fullBar.ctx.beginPath();
-        fullBar.ctx.rect(0, 0, 560, 160);
-        fullBar.ctx.fillStyle = '#ff6000';
+        fullBar.ctx.rect(0, 0, 580, 180);
+        fullBar.ctx.fillStyle = '#FFE4B5';
         fullBar.ctx.fill();
         this.messageBox = magicTeamGame.add.sprite(20,20, emptyBar);
-        var foreground = magicTeamGame.add.sprite(20,20, fullBar);
-        var message = magicTeamGame.add.text(this.messageBox.width / 2, this.messageBox.height / 2,"----",{"text-align":"center", wordWrap: true, wordWrapWidth: this.messageBox.width});
+        var foreground = magicTeamGame.add.sprite(10,10, fullBar);
+        var message = magicTeamGame.add.text(this.messageBox.width / 2, this.messageBox.height / 2,"----",{"font": "22px Arial", "text-align":"center", wordWrap: true, wordWrapWidth: this.messageBox.width - 2*15});
         message.anchor.set(0.5);
         this.messageBox.addChild(foreground);
         this.messageBox.addChild(message);
@@ -135,6 +136,24 @@ battleState.prototype = {
         this.mageSprites[gFrostMageKey].kill();
         this.mageSprites[gFrostMageKey].revive();
         */
+
+        var t = this;
+        window.setTimeout(function(){
+            t.particleBurst(100, 100);
+            t.particleBurst(130, 100);
+            t.particleBurst(160, 100);
+            t.particleBurst(190, 100);
+            t.particleBurst(210, 100);
+            t.particleBurst(240, 100);
+        }, 3000);
+
+
+        magicTeamGame.physics.startSystem(Phaser.Physics.ARCADE);
+
+        this.whiteEmitter = magicTeamGame.add.emitter(0, 0, 100);
+
+        this.whiteEmitter.makeParticles('explosion', [5,6,7]);
+        this.whiteEmitter.gravity = 200;
     },
 
     // Called for each refresh
@@ -143,6 +162,22 @@ battleState.prototype = {
     },
     // Called after the renderer rendered - usefull for debug rendering, ...
     render: function  () {
+    },
+
+    // -- Effects
+
+    particleBurst: function (x, y) {
+
+        //  Position the emitter where the mouse/touch event was
+        this.whiteEmitter.x = x;
+        this.whiteEmitter.y = y;
+
+        //  The first parameter sets the effect to "explode" which means all particles are emitted at once
+        //  The second gives each particle a 2000ms lifespan
+        //  The third is ignored when using burst/explode mode
+        //  The final parameter (10) is how many particles will be emitted in this single burst
+        this.whiteEmitter.start(true, 2000, null, 10);
+
     },
 
     // --- Mages interactions
@@ -229,7 +264,7 @@ battleState.prototype = {
                 //console.log("Killing foe sprite", foeSprite, foeSprite.foeId, targetPlayer, foe);
                 foeSprite.foeId = null;
                 if(foeSprite.attackTween){
-                    //console.log("Stopping tween", foeSprite.attackTween);
+                    console.log("Stopping tween", foeSprite.attackTween);
                     foeSprite.attackTween.stop();
                 }
                 foeSprite.attackTween = null;
@@ -343,10 +378,10 @@ battleState.prototype = {
             displayedId = displayedId.substring(0,10)+"...";
         }
         if(game.levelSucess){
-            this.messageBox.message.text = "Sucess for level "+game.currentLevel+" !! (game '"+displayedId+"')";
+            this.messageBox.message.text = "Sucess for level "+game.currentLevel+" !!\n(game '"+displayedId+"')";
             this.messageBox.revive();
         }else if(game.levelFailure){
-            this.messageBox.message.text = "You were slain in level "+game.currentLevel+"(game '"+displayedId+"')";
+            this.messageBox.message.text = "You were slain in level "+game.currentLevel+"\n(game '"+displayedId+"')";
             this.messageBox.revive();
         }else if(game.gameStarted){
             this.messageBox.kill();
@@ -355,7 +390,7 @@ battleState.prototype = {
             if(Object.keys(game.players).length < 2){
                 additionalInfo = "\n\nNot enough players: bring friends to game '"+displayedId+"' !";
             }
-            this.messageBox.message.text = "Game '"+displayedId+"'' not started for level "+game.currentLevel+additionalInfo;
+            this.messageBox.message.text = "Game '"+displayedId+"'' not started\nfor level "+game.currentLevel+additionalInfo;
             this.messageBox.revive();
         }
     },

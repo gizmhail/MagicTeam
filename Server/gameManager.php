@@ -10,6 +10,8 @@ $playerId = isset($_GET['playerId'])?$_GET['playerId']:false;
 $gameId = isset($_GET['gameId'])?$_GET['gameId']:false;
 $sequence = isset($_GET['sequence'])?explode(',',$_GET['sequence']):false;
 $targetFoeTypeName = isset($_GET['targetFoeTypeName'])?$_GET['targetFoeTypeName']:false;
+$level = isset($_GET['level'])?$_GET['level']:1;
+$speed = isset($_GET['speed'])?$_GET['speed']:SERVER_SPEED;
 
 // Output placeholders
 $data = array();
@@ -30,9 +32,10 @@ if($request == "listGames"){
 }
 if($request == "gameState"){
 	if($gameId){
-		$data = new Game($gameId);
+		$game = new Game($gameId);
 		// If started, the engine evaluates the new game state
-		$data->gameProgression();
+		$game->gameProgression();
+		$data = $game;
 	}else{
 		$data = array("error"=>"Missing parameters (gameId needed)");
 	}
@@ -54,7 +57,7 @@ if($request == "startGame"){
 		$game = new Game($gameId);
 		// If started, the engine evaluates the new game state
 		$game->gameProgression();
-		$game->startGame();
+		$game->startGame($level, $speed);
 		$data = $game;
 	}else{
 		$data = array("error"=>"Missing parameters (gameId needed)");

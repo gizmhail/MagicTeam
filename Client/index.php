@@ -17,7 +17,7 @@
                 var gameId = $("#gameName").val();
                 if(gameId == null || gameId == ''){
                     createGame(function(data){
-                        console.log(data);
+                        console.log("New game", data);
                         window.location.href = "game.html?gameId="+data["gameId"] 
                     });
                 }else{

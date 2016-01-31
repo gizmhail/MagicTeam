@@ -8,9 +8,19 @@ define("MAGE_CLASS_1", "Mage blanc");
 define("MAGE_CLASS_2", "Mage frost");
 define("MAGE_CLASS_3", "Mage feu");
 */
+
+define("MAX_GAME_LEVEL", 3);
+
 define("MAGE_CLASS_1", "White mage");
 define("MAGE_CLASS_2", "Frost mage");
 define("MAGE_CLASS_3", "Fire mage");
+
+define("ZOMBIE_TYPE", "Zombie");
+define("VAMPIRE_TYPE", "Vampire");
+define("FIREMASTER_TYPE", "Fire master");
+define("SPARKLE_TYPE", "Sparkle");
+define("ICELEMENTAL_TYPE", "Ice elemental");
+define("COLDGIANT_TYPE", "Cold giant");
 
 define("SERVER_SPEED", 1);
 
@@ -21,20 +31,24 @@ class Game{
 	var $creationDate;
 	var $lastSaveDate;
 	var $currentLevel = 1;
+	var $speed = SERVER_SPEED;
 	var $levelInfo = array();
 	var $gameStarted = false;
 	var $playingClasses = array();
 	var $waveInfo = array();
+	//TODO Fix orth error (suCcess) everyone (client included)
 	var $levelSucess = false;
 	var $levelFailure = false;
 	var $availableKeys = array();
+	var $foeTypes = array();
 	// Do not serialize debug
 	var $debug = array();
 
+	// Level and speed can only be set at creation/startGame
 	function __construct($gameId = false){
 		if($gameId === false){
 			$this->gameId = $this->generateGameId();
-			$this->loadLevel($this->currentLevel);
+			$this->loadLevel();
 		}else{
 			$this->gameId = $gameId;
 		}
@@ -44,10 +58,10 @@ class Game{
 		$this->loadSavedGame();
 	}
 
-	function startGame(){
+	function startGame($level = 1, $speed = SERVER_SPEED){
 		if(count($this->players)>1){
 			$this->gameStarted = true;
-			$this->loadLevel();
+			$this->changeLevel($level, $speed);
 			$this->gameProgression();
 			$this->save();
 		}
@@ -64,8 +78,15 @@ class Game{
 		return $id;
 	}
 
-	function changeLevel($level){
+	function changeLevel($level, $speed = SERVER_SPEED){
+		if($speed < 0){
+			$speed = 1;
+		}
+		if($level < 0 || $level > MAX_GAME_LEVEL){
+			$level = 1;
+		}
 		$this->currentLevel = $level;
+		$this->speed = $speed;
 		$this->loadLevel();
 	}
 
@@ -76,8 +97,15 @@ class Game{
 		if($this->currentLevel == 1){
 			$this->loadLevel1();
 		}
-
-		//TODO Fill key with placeholder symbols
+		if($this->currentLevel == 2){
+			$this->loadLevel2();
+		}
+		if($this->currentLevel == 3){
+			$this->loadLevel3();
+		}
+		if($this->currentLevel == 4){
+			$this->loadLevel4();
+		}
 	}
 
 	function resetLevel(){
@@ -205,10 +233,15 @@ class Game{
 				$this->players = $storedGame->players;
 				$this->lastSaveDate = $storedGame->lastSaveDate;
 				$this->currentLevel = $storedGame->currentLevel;
+				$this->speed = $storedGame->speed;
 				$this->gameStarted = $storedGame->gameStarted;
 				$this->playingClasses = $storedGame->playingClasses;
 				$this->waveInfo = $storedGame->waveInfo;
 				$this->availableKeys = $storedGame->availableKeys;
+				$this->foeTypes = $storedGame->foeTypes;
+				$this->levelSucess = $storedGame->levelSucess;
+				$this->levelFailure = $storedGame->levelFailure;
+
 			}else{
 				throw new Exception('Problem with '.$this->storageFile().' game state file');
 			}
@@ -219,6 +252,7 @@ class Game{
 	 * Level preparation
 	 */
 	function addFoeToBestiary($foeType){
+		$this->foeTypes[$foeType->foeName] = $foeType;
 		$requiredClass = $foeType->spellWeakness->playerClass;
 		if(in_array($requiredClass, $this->playingClasses)){
 			// The needed caster is in the game
@@ -245,7 +279,8 @@ class Game{
 	}
 
 	function addFoeInstanceToWave($foe){
-		$requiredClass = $foe->foeType->spellWeakness->playerClass;
+		$foeType = $foe->foeType;
+		$requiredClass = $foeType->spellWeakness->playerClass;
 		if(in_array($requiredClass, $this->playingClasses)){
 			// The needed caster is in the game
 			$this->waveInfo[] = $foe;
@@ -365,6 +400,16 @@ class Game{
 		}else{
 			if($this->levelFailure != false) $change = true;
 			$this->levelFailure = false;
+			$anyFoeAlive = false;
+			foreach ($this->waveInfo as $foe) {
+				if($foe->foeLife > 0 && !$foe->hasFled){
+					$anyFoeAlive = true;
+				}
+			}
+			if(!$anyFoeAlive && count($this->waveInfo) != 0){
+				if($this->levelSucess != true) $change = true;
+				$this->levelSucess = true;
+			}
 		}
 		if($change){
 			$this->save();
@@ -430,6 +475,12 @@ class Game{
 		return $foes;
 	}
 
+	function foeTypeByName($name){
+		if(isset($this->foeTypes[$name])){
+			return $this->foeTypes[$name];
+		}
+		return nil;
+	}
 
 	/**
 	 * Game rules
@@ -447,31 +498,31 @@ class Game{
 		}
 		return $sequence;
 	}
-	function loadLevel1(){	
-		$availableKeys = array("m","a","o","i","c","e","j","k","z");
+
+	function loadBaseLevelTemplate($availableKeys = array("m","a","o","i","c","e","j","k","z"), $speed = 1, $playerStrength = 1, $foesStrength = 1){
 		$this->availableKeys = $availableKeys;
 
 		// -- Spells	
 
 		// Blanc
-		$sacredLightSpell = new Spell("Lumière sacrée", $this->randomSpellSequence($availableKeys), MAGE_CLASS_1, 50);
-		$lightStrikeSpell = new Spell("Frappe divine", $this->randomSpellSequence($availableKeys), MAGE_CLASS_1, 50);
+		$sacredLightSpell = new Spell("Lumière sacrée", $this->randomSpellSequence($availableKeys), MAGE_CLASS_1, 50*$playerStrength);
+		$lightStrikeSpell = new Spell("Frappe divine", $this->randomSpellSequence($availableKeys), MAGE_CLASS_1, 50*$playerStrength);
 		// Glace
-		$frostBoltSpell = new Spell("Eclair de givre", $this->randomSpellSequence($availableKeys), MAGE_CLASS_2, 50);
-		$iceLanceSpell = new Spell("Javelot de glace", $this->randomSpellSequence($availableKeys), MAGE_CLASS_2, 50);
+		$frostBoltSpell = new Spell("Eclair de givre", $this->randomSpellSequence($availableKeys), MAGE_CLASS_2, 50*$playerStrength);
+		$iceLanceSpell = new Spell("Javelot de glace", $this->randomSpellSequence($availableKeys), MAGE_CLASS_2, 50*$playerStrength);
 		// Fire
-		$fireballSpell = new Spell("Fireball", $this->randomSpellSequence($availableKeys), MAGE_CLASS_3, 50);
-		$fireTornadoSpell = new Spell("Tornade de flammes", $this->randomSpellSequence($availableKeys), MAGE_CLASS_3, 50);
+		$fireballSpell = new Spell("Fireball", $this->randomSpellSequence($availableKeys), MAGE_CLASS_3, 50*$playerStrength);
+		$fireTornadoSpell = new Spell("Tornade de flammes", $this->randomSpellSequence($availableKeys), MAGE_CLASS_3, 50*$playerStrength);
 
 		// Blanc
-		$zombieFoeType = new FoeType("Zombie", $lightStrikeSpell, 100, 9/SERVER_SPEED, 100);
-		$vampireFoeType = new FoeType("Vampire", $sacredLightSpell, 100, 7/SERVER_SPEED);
+		$zombieFoeType = new FoeType(ZOMBIE_TYPE, $lightStrikeSpell, 100, 9/$speed, 20*$foesStrength);
+		$vampireFoeType = new FoeType(VAMPIRE_TYPE, $sacredLightSpell, 100, 7/$speed, 20*$foesStrength);
 		// Glace
-		$fireElemFoeType = new FoeType("Fire master", $frostBoltSpell, 100, 10/SERVER_SPEED);
-		$sparkFoeType = new FoeType("Sparkle", $iceLanceSpell, 50, 6/SERVER_SPEED);
+		$fireElemFoeType = new FoeType(FIREMASTER_TYPE, $frostBoltSpell, 100, 10/$speed, 20*$foesStrength);
+		$sparkFoeType = new FoeType(SPARKLE_TYPE, $iceLanceSpell, 50, 6/$speed, 20*$foesStrength);
 		// Fire
-		$iceElemFoeType = new FoeType("Ice elemental", $fireballSpell, 100, 11/SERVER_SPEED);
-		$iceGiantFoeType = new FoeType("Cold giant", $fireTornadoSpell, 100, 9/SERVER_SPEED, 100);
+		$iceElemFoeType = new FoeType(ICELEMENTAL_TYPE, $fireballSpell, 100, 11/$speed, 20*$foesStrength);
+		$iceGiantFoeType = new FoeType(COLDGIANT_TYPE, $fireTornadoSpell, 100, 9/$speed, 20*$foesStrength);
 
 		// -- Foe types	
 		$this->addFoeToBestiary($zombieFoeType);
@@ -480,19 +531,82 @@ class Game{
 		$this->addFoeToBestiary($sparkFoeType);
 		$this->addFoeToBestiary($iceElemFoeType);
 		$this->addFoeToBestiary($iceGiantFoeType);
+	}
+
+	function loadLevel1(){	
+		$speed = $this->speed;
+		$playerStrength = 2;
+		$foesStrength = 1;
+		$availableKeys = array("m","a","o","i","c","e","j","k","z");
+		$this->loadBaseLevelTemplate($availableKeys, $speed, $playerStrength, $foesStrength);
 
 		// -- Foe waves
-		$this->addFoeInstanceToWave(new Foe($zombieFoeType));
-		$this->addFoeInstanceToWave(new Foe($fireElemFoeType));
-		$this->addFoeInstanceToWave(new Foe($iceElemFoeType));
-		$this->addFoeInstanceToWave(new Foe($vampireFoeType));
-		$this->addFoeInstanceToWave(new Foe($sparkFoeType));
-		$this->addFoeInstanceToWave(new Foe($iceGiantFoeType));
-		$this->addFoeInstanceToWave(new Foe($zombieFoeType));
-		$this->addFoeInstanceToWave(new Foe($fireElemFoeType));
-		$this->addFoeInstanceToWave(new Foe($iceElemFoeType));
-		$this->addFoeInstanceToWave(new Foe($vampireFoeType));
-		$this->addFoeInstanceToWave(new Foe($sparkFoeType));
-		$this->addFoeInstanceToWave(new Foe($iceGiantFoeType));
+		$waveCount = 1;
+		while($waveCount>0){
+			$this->addFoeInstanceToWave(new Foe($this->foeTypeByName(ZOMBIE_TYPE)));
+			$this->addFoeInstanceToWave(new Foe($this->foeTypeByName(FIREMASTER_TYPE)));
+			$this->addFoeInstanceToWave(new Foe($this->foeTypeByName(ICELEMENTAL_TYPE)));
+			$waveCount--;
+		}
+	}
+
+	function loadLevel2(){	
+		$speed = $this->speed;
+		$playerStrength = 1;
+		$foesStrength = 2;
+		$availableKeys = array("m","a","o","i","c","e","j","k","z");
+		$this->loadBaseLevelTemplate($availableKeys, $speed, $playerStrength, $foesStrength);
+
+		// -- Foe waves
+		$waveCount = 1;
+		while($waveCount>0){
+			$this->addFoeInstanceToWave(new Foe($this->foeTypeByName(ZOMBIE_TYPE)));
+			$this->addFoeInstanceToWave(new Foe($this->foeTypeByName(FIREMASTER_TYPE)));
+			$this->addFoeInstanceToWave(new Foe($this->foeTypeByName(ICELEMENTAL_TYPE)));
+			$this->addFoeInstanceToWave(new Foe($this->foeTypeByName(VAMPIRE_TYPE)));
+			$this->addFoeInstanceToWave(new Foe($this->foeTypeByName(SPARKLE_TYPE)));
+			$this->addFoeInstanceToWave(new Foe($this->foeTypeByName(COLDGIANT_TYPE)));
+			$waveCount--;
+		}
+	}
+
+	function loadLevel3(){	
+		$speed = $this->speed;
+		$playerStrength = 1;
+		$foesStrength = 1;
+		$availableKeys = array("m","a","o","i","c","e","j","k","z");
+		$this->loadBaseLevelTemplate($availableKeys, $speed, $playerStrength, $foesStrength);
+
+		// -- Foe waves
+		$waveCount = 2;
+		while($waveCount>0){
+			$this->addFoeInstanceToWave(new Foe($this->foeTypeByName(ZOMBIE_TYPE)));
+			$this->addFoeInstanceToWave(new Foe($this->foeTypeByName(FIREMASTER_TYPE)));
+			$this->addFoeInstanceToWave(new Foe($this->foeTypeByName(ICELEMENTAL_TYPE)));
+			$this->addFoeInstanceToWave(new Foe($this->foeTypeByName(VAMPIRE_TYPE)));
+			$this->addFoeInstanceToWave(new Foe($this->foeTypeByName(SPARKLE_TYPE)));
+			$this->addFoeInstanceToWave(new Foe($this->foeTypeByName(COLDGIANT_TYPE)));
+			$waveCount--;
+		}
+	}
+
+	function loadLevel4(){	
+		$speed = $this->speed*1.3;
+		$playerStrength = 1;
+		$foesStrength = 2;
+		$availableKeys = array("m","a","o","i","c","e","j","k","z");
+		$this->loadBaseLevelTemplate($availableKeys, $speed, $playerStrength, $foesStrength);
+
+		// -- Foe waves
+		$waveCount = 2;
+		while($waveCount>0){
+			$this->addFoeInstanceToWave(new Foe($this->foeTypeByName(ZOMBIE_TYPE)));
+			$this->addFoeInstanceToWave(new Foe($this->foeTypeByName(FIREMASTER_TYPE)));
+			$this->addFoeInstanceToWave(new Foe($this->foeTypeByName(ICELEMENTAL_TYPE)));
+			$this->addFoeInstanceToWave(new Foe($this->foeTypeByName(VAMPIRE_TYPE)));
+			$this->addFoeInstanceToWave(new Foe($this->foeTypeByName(SPARKLE_TYPE)));
+			$this->addFoeInstanceToWave(new Foe($this->foeTypeByName(COLDGIANT_TYPE)));
+			$waveCount--;
+		}
 	}
 }
