@@ -11,14 +11,18 @@ function updateUIFromGameState(game){
     }else{
         $("#startButton").html("Start game");   
     }
+    var displayedId = currentGameId();
+    if(displayedId.length>13){
+        displayedId = displayedId.substring(0,10)+"...";
+    }
     if(game.levelSucess){
-        $('#gameStatus').html("Sucess for level "+game.currentLevel+" (game '"+currentGameId()+"')");
+        $('#gameStatus').html("Sucess for level "+game.currentLevel+" (game '"+displayedId+"')");
     }else if(game.levelFailure){
-        $('#gameStatus').html("You were slain in level "+game.currentLevel+"(game '"+currentGameId()+"')");
+        $('#gameStatus').html("You were slain in level "+game.currentLevel+"(game '"+displayedId+"')");
     }else if(game.gameStarted){
-        $('#gameStatus').html("Level "+game.currentLevel+" playing ! (game '"+currentGameId()+"')");
+        $('#gameStatus').html("Level "+game.currentLevel+" playing ! (game '"+displayedId+"')");
     }else{
-        $('#gameStatus').html("Game '"+currentGameId()+"'' not started for level "+game.currentLevel);        
+        $('#gameStatus').html("Game '"+displayedId+"'' not started for level "+game.currentLevel);        
     }
     bestiary = game.players[userIdentifier()].bestiary;
     $('#playersSide').html('');
@@ -178,6 +182,13 @@ $(document).ready(function(){
         if(!gameStarted){
             startGame(gameId,function(game){
                 updateUIFromGameState(lastGameState);
+                if(Object.keys(game.players).length < 2){
+                    var displayedId = currentGameId();
+                    if(displayedId.length>13){
+                        displayedId = displayedId.substring(0,10)+"...";
+                    }
+                    $('#gameStatus').html("<span style='fint-weight:bold;color:red'>Not enough players: bring friends to game '"+displayedId+"' !</span>");
+                }
             });
         }else{
             stopGame(gameId,function(game){

@@ -39,10 +39,7 @@
     </head>
     <body>
         <div>
-            Games edition:
-            <ul>
-                <li><a href='#' id='newGame'>Create a new game</a> <input id='gameName' placeholder='Game name'/></li>
-            </ul>
+            <a href='#' id='newGame'>Create a new game</a> <input id='gameName' placeholder='Game name'/>
         </div>
     	<div>
             Existing games:
@@ -72,6 +69,22 @@
 
     		</ul>
     	</div>
+        <hr/>
+        <div>
+            <img src='assets/redmage_f.png' style='float:left; margin:10px'/>
+            <p>
+            The game is a mix between Magicka and Spaceteam, very inspired by this later.
+            Indeed, as with Spaceteam, the goal of the game is to achieve a maximum auditive chaos ^_^
+            </p>
+            <p>
+            It is a cooperative game, where you are, with your friends, a team of mages.
+            You have to cast spells to fight your foes, and only some spells can hurt a given ennemy.
+            To cast a spell, you have to send each arcane symbols in the proper order, as written in the bestiary (where for a given creature, the appropriate spell is given)
+            <p>
+            <b>...but there is a twist</b>: your bestiary does NOT contain your spells, but the spells of your teamates.
+            And thus, you are obliged to quickly communicate together outside of the video game, by whisping/telling/HURLING the commands to your teamates
+            </p>
+        </div>
     </body>
 </html>
 
