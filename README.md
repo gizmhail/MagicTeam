@@ -18,6 +18,9 @@ Creative Commons (Attribution, Share alike)
 
 # Resources 
 
+## Sound 
+All sounds and musics were created for the game, by Fryderyk expert, during the GGJ 
+
 ## Graphical assets
 * http://untamed.wild-refuge.net/rmxpresources.php?characters - Characters by Sithjester
 * http://opengameart.org/content/large-nature-background - © 2012-2013 Julien Jorge <julien.jorge@stuff-o-matic.com>
