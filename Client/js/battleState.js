@@ -5,6 +5,9 @@ var battleState = function(){
     this.foeIndicatorSprites = [];
     this.mageKeys = [gFireMageKey, gFrostMageKey, gWhiteMageKey];
     this.whiteEmitter = null;
+    this.whiteEmitter = null;
+    this.sounds = [];
+    this.soundsLoaded = false;
 };
 
 battleState.prototype = { 
@@ -29,6 +32,15 @@ battleState.prototype = {
         magicTeamGame.load.spritesheet('white_explosion', 'assets/sparkle.png', 36, 32);
         magicTeamGame.load.spritesheet('explosion', 'assets/red_sparkle.png', 36, 32);
         magicTeamGame.load.spritesheet('zombie', 'assets/ZombieSpriteSheet.png', 40, 37);
+        magicTeamGame.load.audio('coup1', 'sounds/coup1.mp3');
+        magicTeamGame.load.audio('coup2', 'sounds/coup2.mp3');
+        magicTeamGame.load.audio('coup3', 'sounds/coup3.mp3');
+        magicTeamGame.load.audio('gameover1', 'sounds/gameover.mp3');
+        magicTeamGame.load.audio('gameover2', 'sounds/gameover2.mp3');
+        magicTeamGame.load.audio('levelup', 'sounds/levelup.mp3');
+        magicTeamGame.load.audio('musiqueambiancecourt', 'sounds/musiqueambiancecourt.mp3');
+        magicTeamGame.load.audio('musiqueambiancecourt2', 'sounds/musiqueambiancecourt2.mp3');
+
 
     },
     // Called after preload - create sprites,... using assets here
@@ -148,6 +160,31 @@ battleState.prototype = {
 
         this.whiteEmitter.makeParticles('explosion', [5,6,7]);
         this.whiteEmitter.gravity = 200;
+
+        this.music = magicTeamGame.add.audio('musiqueambiancecourt2');
+        this.sounds["musiqueambiancecourt2"] = this.music;
+        var soundsToLoad = [
+            this.music,
+        ];
+        var soundEffectKeys = ['coup1', 'coup2','coup3', 'gameover1', 'gameover2', 'levelup'];
+        for (var i = 0; i < soundEffectKeys.length; i++) {
+            var audioKey = soundEffectKeys[i];
+            this.sounds[audioKey] = magicTeamGame.add.audio(audioKey);
+            soundsToLoad.push( this.sounds[audioKey] );
+        };
+
+        magicTeamGame.sound.setDecodedCallback(soundsToLoad, this.soundsAvailable, this);
+    },
+
+    soundsAvailable: function(){
+        this.music.loopFull(0.2);
+        this.soundsLoaded = true;
+    },
+
+    playFX: function(audioKey){
+        if(this.soundsLoaded && (audioKey in this.sounds) ) {
+            this.sounds[audioKey].play();
+        }
     },
 
     // Called for each refresh
@@ -227,7 +264,7 @@ battleState.prototype = {
                     this.particleBurst(sprite.x + 8, sprite.y + 8);
                     this.particleBurst(sprite.x + 8, sprite.y);
                     this.particleBurst(sprite.x    , sprite.y + 8);
-
+                    this.playFX("gameover2");
                 }
                 sprite.kill();
             }
@@ -285,6 +322,7 @@ battleState.prototype = {
                 }
             }
             if(foe.active){
+                var foeSpriteIndex = Math.floor((Math.random() * 3) + 1);
                 if(targetPlayer && targetPlayer.playerLife > 0){
                     //console.log("Active foe", foe.foeId, foe);
                     var foeSprite = null;
@@ -292,6 +330,7 @@ battleState.prototype = {
                     for (var j = 0; j < this.foeSprites.length; j++) {
                         if(this.foeSprites[j].foeId == foe.foeId){
                             foeSprite = this.foeSprites[j];
+                            foeSpriteIndex = j;
                             spriteFound = true;
                             break;
                         }
@@ -338,6 +377,7 @@ battleState.prototype = {
                                     sprite.foeTexture = texture;
                                 }
                                 foeSprite = sprite;
+                                foeSpriteIndex = k;
                                 break;
                             }
                         }
@@ -362,6 +402,10 @@ battleState.prototype = {
                                     .to( {x: x + 10, y: y}, 1000*foe.timeBeforeNextCast);
                                 foeSprite.attackTween.onComplete.add(function(){
                                     this.state.particleBurst(this.x, this.y);
+                                    foeSpriteIndex = Math.floor((Math.random() * 3) + 1);
+                                    console.log(foeSpriteIndex);
+                                    this.state.playFX("coup"+foeSpriteIndex);
+
                                 }, {"state": this, "x":x,"y":y});
                                 foeSprite.attackTween.start();
                                 //console.log("Starting tween", foeSprite.attackTween);
