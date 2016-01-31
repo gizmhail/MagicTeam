@@ -12,13 +12,13 @@ function updateUIFromGameState(game){
         $("#startButton").html("Start game");   
     }
     if(game.levelSucess){
-        $('#gameStatus').html("Sucess for level "+game.currentLevel);
+        $('#gameStatus').html("Sucess for level "+game.currentLevel+" (game '"+currentGameId()+"')");
     }else if(game.levelFailure){
-        $('#gameStatus').html("You were slain in level "+game.currentLevel);
+        $('#gameStatus').html("You were slain in level "+game.currentLevel+"(game '"+currentGameId()+"')");
     }else if(game.gameStarted){
-        $('#gameStatus').html("Level "+game.currentLevel+" playing !");
+        $('#gameStatus').html("Level "+game.currentLevel+" playing ! (game '"+currentGameId()+"')");
     }else{
-        $('#gameStatus').html("Game not started for level "+game.currentLevel);        
+        $('#gameStatus').html("Game '"+currentGameId()+"'' not started for level "+game.currentLevel);        
     }
     bestiary = game.players[userIdentifier()].bestiary;
     $('#playersSide').html('');
@@ -197,25 +197,51 @@ $(document).ready(function(){
 
     updateKeysCallbacks();
 
-    $(window).keypress(function(e) {
-        var keyId = String.fromCharCode(e.which);
-        console.log(e, keyId);
-        pressKey(keyId);
+    $("body").keydown(function(e) {
+        switch(e.which) {
+            case 38: 
+            case 40: 
+                break;
+            case 37: // left
+                showBestiary();
+                break;
+            case 39: // right
+                showSpellBook();
+                break;
+            case 32: 
+                if(!$('#spellBookToogle').is(":visible")){
+                    showSpellBook();
+                }else{
+                    showBestiary();
+                }
+                break;
+            default: // Letter probably
+                var keyId = String.fromCharCode(e.which).toLowerCase();
+                console.log(e, keyId);
+                pressKey(keyId);
+        }
 
     });
 
-   $("#spellBookToogle").click(function(event){
-        $('#input').show();
-        $('#bestiary').hide();
-        $('#bestiaryToogle').css("background-color", "white");
-        $('#spellBookToogle').css("background-color", "yellow");
-    });
-   $("#bestiaryToogle").click(function(event){
+    function showBestiary(){
         $('#bestiary').show();
         $('#input').hide();
         $('#bestiaryToogle').css("background-color", "yellow");
         $('#spellBookToogle').css("background-color", "white");
-        
+    }
+
+    function showSpellBook(){
+        $('#input').show();
+        $('#bestiary').hide();
+        $('#bestiaryToogle').css("background-color", "white");
+        $('#spellBookToogle').css("background-color", "yellow");        
+    }
+    $("#spellBookToogle").click(function(event){
+        showSpellBook();
+    });
+
+   $("#bestiaryToogle").click(function(event){
+        showBestiary();        
     });
 
 });

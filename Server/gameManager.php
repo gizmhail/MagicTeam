@@ -19,6 +19,9 @@ $jsonString = null;
 
 if($request == "newGame"){
 	$game = new Game();
+	// If started, the engine evaluates the new game state
+	$game->gameProgression();
+
 	$game->save();
 	$jsonString = $game->asJson();
 }
@@ -28,6 +31,8 @@ if($request == "listGames"){
 if($request == "gameState"){
 	if($gameId){
 		$data = new Game($gameId);
+		// If started, the engine evaluates the new game state
+		$data->gameProgression();
 	}else{
 		$data = array("error"=>"Missing parameters (gameId needed)");
 	}
@@ -35,7 +40,10 @@ if($request == "gameState"){
 if($request == "registerPlayer"){
 	if($playerId && $gameId){
 		$game = new Game($gameId);
+		// If started, the engine evaluates the new game state
+		$game->gameProgression();
 		$player = $game->addPlayerId($playerId);
+
 		$data = $player;
 	}else{
 		$data = array("error"=>"Missing parameters (playerId and gameId needed)");
@@ -44,6 +52,8 @@ if($request == "registerPlayer"){
 if($request == "startGame"){
 	if($gameId){
 		$game = new Game($gameId);
+		// If started, the engine evaluates the new game state
+		$game->gameProgression();
 		$game->startGame();
 		$data = $game;
 	}else{
@@ -53,6 +63,8 @@ if($request == "startGame"){
 if($request == "stopGame"){
 	if($gameId){
 		$game = new Game($gameId);
+		// If started, the engine evaluates the new game state
+		$game->gameProgression();
 		$game->stopGame();
 		$data = $game;
 	}else{
@@ -62,6 +74,8 @@ if($request == "stopGame"){
 if($request == "castSpell"){
 	if($gameId && $sequence){
 		$game = new Game($gameId);
+		// If started, the engine evaluates the new game state
+		$game->gameProgression();
 		// targetFoeTypeName can be null (we're tolerant guys ^^)
 		$game->castSpell($playerId, $sequence,$targetFoeTypeName);
 		$data = $game;

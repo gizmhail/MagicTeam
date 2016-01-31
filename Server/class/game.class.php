@@ -42,8 +42,6 @@ class Game{
 		$this->creationDate = microtime(true);
 		// Load saved game, if it existed before
 		$this->loadSavedGame();
-		// If started, the engine evaluates the new game state
-		$this->gameProgression();
 	}
 
 	function startGame(){
@@ -142,6 +140,17 @@ class Game{
 		return $storageDir;
 	}
 
+	static function compareGameIds($aId, $bId){
+		$a = self::loadSavedGameForGameId($aId);
+		$b = self::loadSavedGameForGameId($bId);
+	    $aEval = $a->lastSaveDate;
+        $bEval = $b->lastSaveDate;
+        if ($aEval == $bEval) {
+            return 0;
+        }
+        return ($aEval < $bEval) ? +1 : -1;
+    }
+
 	static function existingGames(){
 		$gameIds = array();
 		$games = glob(self::storageDir().'/game.*.txt');
@@ -149,22 +158,41 @@ class Game{
 			$gameId = basename($game);
 			$gameId = str_replace("game.", "", $gameId);
 			$gameId = str_replace(".txt", "", $gameId);
-			$gameIds[] = $gameId;
+			$gameObj = self::loadSavedGameForGameId($gameId);
+			$now = microtime(true);
+			if( ($now - $gameObj->lastSaveDate) < 10*60 ){
+				$gameIds[] = $gameId;
+			}else{
+				unlink($game);
+			}
 		}
+		usort($gameIds, array("Game", "compareGameIds"));
 		// TODO: load game. Remove one with very old last save date (game probably finished)
 		return $gameIds;
 	}
 
-	function storageFile(){
-		$storageDir = $this->storageDir();
-		$storageFile = $storageDir.'/game.'.$this->gameId.'.txt';
+	static function storageFileForGameId($gameId){
+		$storageDir = self::storageDir();
+		$storageFile = $storageDir.'/game.'.$gameId.'.txt';
 		return $storageFile;
+	}
+
+	function storageFile(){
+		return $this->storageFileForGameId($this->gameId);
 	}
 
 	function save(){
 		$this->lastSaveDate = microtime(true);
 		$content = serialize($this);
 		file_put_contents($this->storageFile(), $content);
+	}
+
+	static function loadSavedGameForGameId($gameId){
+		if(is_file(self::storageFileForGameId($gameId))){
+			$storedGameContent = file_get_contents(self::storageFileForGameId($gameId));			
+			$storedGame = unserialize($storedGameContent);
+		}
+		return $storedGame;
 	}
 
 	function loadSavedGame(){
@@ -305,20 +333,20 @@ class Game{
 					}
 				}
 			}
-		}
-		$anyPlayerAlive = false;
-		foreach ($this->players as $player) {
-			if($player->playerLife > 0){
-				$anyPlayerAlive = true;
+			$anyPlayerAlive = false;
+			foreach ($this->players as $player) {
+				if($player->playerLife > 0){
+					$anyPlayerAlive = true;
+				}
 			}
+			if(!$anyPlayerAlive){
+				$this->levelFailure = true;
+				$this->gameStarted = false;
+			}else{
+				$this->levelFailure = false;
+			}
+			$this->save();
 		}
-		if(!$anyPlayerAlive){
-			$this->levelFailure = true;
-			$this->gameStarted = false;
-		}else{
-			$this->levelFailure = false;
-		}
-		$this->save();
 	}
 
 	function castSpell($playerId, $sequence,$targetFoeTypeName=null){
@@ -400,7 +428,7 @@ class Game{
 	function loadLevel1(){	
 		$availableKeys = array("m","a","o","i","c","e","j","k","z");
 		$this->availableKeys = $availableKeys;
-		
+
 		// -- Spells	
 
 		// Blanc

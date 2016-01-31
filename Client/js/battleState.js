@@ -24,7 +24,6 @@ battleState.prototype = {
         magicTeamGame.load.image('fireTornadoMage', 'assets/rincewind.png');
         magicTeamGame.load.spritesheet('zombie', 'assets/ZombieSpriteSheet.png', 40, 37);
 
-
     },
     // Called after preload - create sprites,... using assets here
     create: function () {
@@ -303,7 +302,7 @@ battleState.prototype = {
                             , this.foeSprites[0].foeId, this.foeSprites[1].foeId, this.foeSprites[2].foeId);
                     }
                 }else{
-                    console.log("foe active but player dead", foe, player);
+                    // console.log("foe active but player dead", foe, player);
                 }
             }            
         }

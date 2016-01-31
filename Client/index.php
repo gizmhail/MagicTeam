@@ -9,14 +9,30 @@
         <script src="js/jquery.min.js"></script>
         <script src="js/tools.js"></script>
         <script src="js/game.js"></script>
+        <link rel="stylesheet" type="text/css" href="game.css">
         <script type="text/javascript">
-            $(document).ready(function() {
-                $("#newGame").click(function(){
-                    console.log("Creating new game");
+            function launchNewGame(){
+                console.log("Creating new game");
+                var gameId = $("#gameName").val();
+                if(gameId == null || gameId == ''){
                     createGame(function(data){
                         console.log(data);
                         window.location.href = "game.html?gameId="+data["gameId"] 
                     });
+                }else{
+                    window.location.href = "game.html?gameId="+gameId                         
+                }
+
+            }
+            $(document).ready(function() {
+                $('#gameName').keypress(function (e) {
+                  if (e.which == 13) {
+                    launchNewGame();
+                    return false;
+                  }
+                });
+                $("#newGame").click(function(){
+                    launchNewGame();
                 });
             });
         </script>
@@ -25,7 +41,7 @@
         <div>
             Games edition:
             <ul>
-                <li><a href='#' id='newGame'>Create a new game</a></li>
+                <li><a href='#' id='newGame'>Create a new game</a> <input id='gameName' placeholder='Game name'/></li>
             </ul>
         </div>
     	<div>
@@ -38,12 +54,15 @@
                 foreach (Game::existingGames() as $gameId) {
                     $game = new Game($gameId);
                 ?>
-                <li>
+                <li style='border:1px solid brown;margin:5px;'>
                     <a href='game.html?gameId=<?php echo $gameId?>'>
                         Players: <?php echo count($game->players)?>/<?php echo count($game->gameClasses()) ?>
                         <ul>
-                            <li>Game id: <?php echo $gameId?> </li>
-                            <li>Start date: <?php echo date("d/m - H:i:s", $game->creationDate)?> </li>
+                            <li>Game name: <?php echo $gameId?> </li>
+                            <li>
+                                Start date: <?php echo date("d/m - H:i:s", $game->creationDate)?> 
+                                (<?php echo date("d/m - H:i:s", $game->lastSaveDate)?>)
+                            </li>
                         </ul>
                     </a>
                 </li>
