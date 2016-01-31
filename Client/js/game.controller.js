@@ -251,8 +251,11 @@ $(document).ready(function(){
         showSpellBook();
     });
 
-   $("#bestiaryToogle").click(function(event){
+    $("#bestiaryToogle").click(function(event){
         showBestiary();        
     });
 
+    if(getUrlParameter("debug") == "1"){
+        $("#debugInfo").show();
+    }
 });

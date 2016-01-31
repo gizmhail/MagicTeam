@@ -78,7 +78,7 @@
             <img src='assets/redmage_f.png' style='float:left; margin:10px'/>
             <p>
             The game is a mix between Magicka and Spaceteam, very inspired by this later.
-            Indeed, as with Spaceteam, the goal of the game is to achieve a maximum auditive chaos ^_^
+            Indeed, as with Spaceteam, the goal of the game is to achieve a <b>maximum auditive chaos</b> ^_^
             </p>
             <p>
             It is a <b>cooperative game</b>, where you are, with your friends, a team of mages.
