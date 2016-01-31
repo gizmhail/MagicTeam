@@ -197,7 +197,7 @@ battleState.prototype = {
                             var player = game.players[playerId];
                             if(player.playerClass == foe.targetPlayerClassName){
                                 targetPlayer = player;
-                                if(player.playerLife >0){
+                                if(player.playerLife >0 && game.gameStarted){
                                     stillUsed = true;
                                 }
                             }
@@ -279,12 +279,12 @@ battleState.prototype = {
                         foeSprite.lifeBarFull.crop(new Phaser.Rectangle(0, 0, percent*48, 3));
                         foeSprite.revive();
                         // console.log("---", foeSprite);
-                        if(foe.timeBeforeNextCast != null){
+                        var tweenRunning = foeSprite.attackTween == null || foeSprite.attackTween.isRunning == false;
+                        if(foe.timeBeforeNextCast != null && game.gameStarted){
                             var targetMageClass = foe.targetPlayerClassName;
                             var mageSprite = this.mageSprites[targetMageClass];
                             //console.log("---- mageSprite", mageSprite);
                             //console.log(foeSprite.attackTween, foe.timeBeforeNextCast);
-                            var tweenRunning = foeSprite.attackTween == null || foeSprite.attackTween.isRunning == false;
                             if(tweenRunning && foe.timeBeforeNextCast < (foe.foeType.castTime - 1)){
                                 //console.log("No tween", foeSprite.attackTween);
                                 foeSprite.attackTween = magicTeamGame.add.tween(foeSprite)
@@ -295,6 +295,14 @@ battleState.prototype = {
                                 foeSprite.x = foeSprite.originalPosition.x;
                                 foeSprite.y = foeSprite.originalPosition.y;
                             }
+                        }else if(tweenRunning){
+                            // No need to move (no game or no attack): reset !
+                            if(foeSprite.attackTween != null){
+                                foeSprite.attackTween.stop();
+                                foeSprite.attackTween = null;
+                            }
+                            foeSprite.x = foeSprite.originalPosition.x;
+                            foeSprite.y = foeSprite.originalPosition.y;
                         }
                     }else{
                         console.log("Unable to find a sprite for foe: "
