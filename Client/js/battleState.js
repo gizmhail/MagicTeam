@@ -23,7 +23,8 @@ battleState.prototype = {
         magicTeamGame.load.image('iceElemental', 'assets/bahamut.png');
         magicTeamGame.load.image('sparkle', 'assets/rincewind.png');
         magicTeamGame.load.image('fireTornadoMage', 'assets/rincewind.png');
-        magicTeamGame.load.spritesheet('explosion', 'assets/sparkle.png', 36, 32);
+        magicTeamGame.load.spritesheet('white_explosion', 'assets/sparkle.png', 36, 32);
+        magicTeamGame.load.spritesheet('explosion', 'assets/red_sparkle.png', 36, 32);
         magicTeamGame.load.spritesheet('zombie', 'assets/ZombieSpriteSheet.png', 40, 37);
 
     },
