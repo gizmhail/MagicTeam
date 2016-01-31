@@ -72,6 +72,14 @@ function updateUIFromGameState(game){
         }
     };
         
+    if(bestiary.length == 0 && game.gameStarted == false){
+        var foeTypeDiv = $('<div/>', {
+            class: 'bestiary',
+            style: 'border:1px solid red;',
+            text: "The game is not started, the bestiary will be filled with your friends spells once it is started"
+        });
+        foeTypeDiv.appendTo('#bestiary');   
+    }
     for (var i = 0; i < bestiary.length; i++) {
         var foeType = bestiary[i];
         var foeTypeDiv = $('<div/>', {

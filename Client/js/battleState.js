@@ -22,6 +22,7 @@ battleState.prototype = {
         magicTeamGame.load.image('iceElemental', 'assets/bahamut.png');
         magicTeamGame.load.image('sparkle', 'assets/rincewind.png');
         magicTeamGame.load.image('fireTornadoMage', 'assets/rincewind.png');
+        magicTeamGame.load.spritesheet('explosion', 'assets/sparkle.png', 36, 32);
         magicTeamGame.load.spritesheet('zombie', 'assets/ZombieSpriteSheet.png', 40, 37);
 
     },
@@ -33,7 +34,6 @@ battleState.prototype = {
         this.scale.minHeight = 100;
         this.scale.maxHeight = 384;
         this.scale.maxWidth = 640;
-        
         
         this.backgroundSprite = magicTeamGame.add.sprite(0, 0, 'background');
         this.backgroundSprite.crop(new Phaser.Rectangle(0, 100, 640, 384 - 100))
@@ -106,7 +106,27 @@ battleState.prototype = {
             this.foeSprites[i].foeDisplayText = foeDisplayText;
 
         };
-        
+
+
+        var emptyBar = magicTeamGame.add.bitmapData(600, 200); 
+        emptyBar.ctx.beginPath();
+        emptyBar.ctx.rect(0, 0, 600, 200);
+        emptyBar.ctx.fillStyle = '#ffffff';
+        emptyBar.ctx.fill();
+        var fullBar = magicTeamGame.add.bitmapData(600, 200); 
+        fullBar.ctx.beginPath();
+        fullBar.ctx.rect(0, 0, 560, 160);
+        fullBar.ctx.fillStyle = '#ff6000';
+        fullBar.ctx.fill();
+        this.messageBox = magicTeamGame.add.sprite(20,20, emptyBar);
+        var foreground = magicTeamGame.add.sprite(20,20, fullBar);
+        var message = magicTeamGame.add.text(this.messageBox.width / 2, this.messageBox.height / 2,"----",{"text-align":"center", wordWrap: true, wordWrapWidth: this.messageBox.width});
+        message.anchor.set(0.5);
+        this.messageBox.addChild(foreground);
+        this.messageBox.addChild(message);
+        this.messageBox.message = message;
+        this.messageBox.kill();
+
         /*
         this.updateMageLife(gFireMageKey, 0.5);
         this.updateMageLife(gFrostMageKey, 0.2);
@@ -227,7 +247,7 @@ battleState.prototype = {
                 }
             }
             if(foe.active){
-                if(player.playerLife > 0){
+                if(targetPlayer && targetPlayer.playerLife > 0){
                     //console.log("Active foe", foe.foeId, foe);
                     var foeSprite = null;
                     var spriteFound = false;
@@ -275,7 +295,7 @@ battleState.prototype = {
                         }
                     }
                     if(foeSprite != null){
-                        console.log("Sprite for foe", foeSprite,foe);
+                        // console.log("Sprite for foe", foeSprite,foe);
                         var percent = foe.foeLife / foe.foeType.foeMaxLife;
                         foeSprite.lifeBarFull.crop(new Phaser.Rectangle(0, 0, percent*48, 3));
                         foeSprite.revive();
@@ -311,12 +331,32 @@ battleState.prototype = {
                             , this.foeSprites[0].foeId, this.foeSprites[1].foeId, this.foeSprites[2].foeId);
                     }
                 }else{
-                    // console.log("foe active but player dead", foe, player);
+                    console.log("foe active but player dead", foe, targetPlayer);
                 }
             }            
         }
 
         //TODO Add start/stop button
         //TODO Add gameover (or player killed) messages
+        var displayedId = currentGameId();
+        if(displayedId.length>13){
+            displayedId = displayedId.substring(0,10)+"...";
+        }
+        if(game.levelSucess){
+            this.messageBox.message.text = "Sucess for level "+game.currentLevel+" !! (game '"+displayedId+"')";
+            this.messageBox.revive();
+        }else if(game.levelFailure){
+            this.messageBox.message.text = "You were slain in level "+game.currentLevel+"(game '"+displayedId+"')";
+            this.messageBox.revive();
+        }else if(game.gameStarted){
+            this.messageBox.kill();
+        }else{
+            var additionalInfo = "";
+            if(Object.keys(game.players).length < 2){
+                additionalInfo = "\n\nNot enough players: bring friends to game '"+displayedId+"' !";
+            }
+            this.messageBox.message.text = "Game '"+displayedId+"'' not started for level "+game.currentLevel+additionalInfo;
+            this.messageBox.revive();
+        }
     },
 };

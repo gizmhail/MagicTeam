@@ -26,3 +26,4 @@ Creative Commons (Attribution, Share alike)
 ** https://commons.wikimedia.org/wiki/File:Nuvola_apps_edu_languages.png
 ** https://commons.wikimedia.org/wiki/File:Contatti.png
 * http://opengameart.org/content/zombie-rpg-sprites - Curt - cjc83486 http://opengameart.org/content/zombie-rpg-sprites
+* http://opengameart.org/content/sparkles - © 2005-2013 Julien Jorge <julien.jorge@stuff-o-matic.com> It is licenced under the terms of the version 3.0 of the Creative Commons Attribution-Share Alike license. 

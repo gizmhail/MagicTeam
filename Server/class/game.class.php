@@ -253,33 +253,39 @@ class Game{
 	}
 
 	function gameProgression(){
-		if($this->gameStarted){
-			$aliveFoes = array();
-			$aliveFoesNotActive = array();
-			$activeFoes = array();
-
-			foreach ($this->waveInfo as $foe) {
-				if($foe->foeLife > 0 && !$foe->hasFled){
-					$aliveFoes[] = $foe;
-					if(!$foe->active){
-						$playerKillingFoe = $this->playerOfClass($foe->foeType->spellWeakness->playerClass);
-						if($playerKillingFoe && $playerKillingFoe->playerLife > 0){
-							$aliveFoesNotActive[] = $foe;
-						}else{
-							// The player that can kill this monster is not here anymore...we'll be nice, and skip this one :)
-							// (otherwise the remaining players could only die, they would be doomed ! )
-							$foe->hasFled = true;
-							$foe->active = false;
-						}
+		$aliveFoes = array();
+		$aliveFoesNotActiveForLivePLayers = array();
+		$aliveFoesNotActive = array();
+		$activeFoes = array();
+		$change = false;
+		foreach ($this->waveInfo as $foe) {
+			if(!$this->gameStarted){
+				if($foe->active) $change = true;
+				$foe->active = false;
+			}
+			if($foe->foeLife > 0 && !$foe->hasFled){
+				$aliveFoes[] = $foe;
+				if(!$foe->active){
+					$playerKillingFoe = $this->playerOfClass($foe->foeType->spellWeakness->playerClass);
+					$aliveFoesNotActive[] = $foe;
+					if($playerKillingFoe && $playerKillingFoe->playerLife > 0){
+						$aliveFoesNotActiveForLivePLayers[] = $foe;
 					}else{
-						$activeFoes[] = $foe;
+						// The player that can kill this monster is not here anymore...we'll be nice, and skip this one :)
+						// (otherwise the remaining players could only die, they would be doomed ! )
+						$foe->hasFled = true;
+						$foe->active = false;
 					}
 				}else{
-
-					$foe->active = false;
+					$activeFoes[] = $foe;
 				}
+			}else{
+				$foe->active = false;
 			}
+		}
 
+		if($this->gameStarted){
+			$change = true;
 			if(count($aliveFoes) == 0){
 				// If the foe buffer is empty, WIN
 				//TODO Check that one player at last is alive :)
@@ -287,9 +293,9 @@ class Game{
 				$this->gameStarted = false;
 			}else{
 				// If active foe buffer (1 foe for 1 player) is not full, we fill it
-				while (count($activeFoes) < count($this->players) && count($aliveFoesNotActive) != 0) {
+				while (count($activeFoes) < count($this->players) && count($aliveFoesNotActiveForLivePLayers) != 0) {
 					// We have a partially filled active foes buffer
-					$firstInactive = array_shift($aliveFoesNotActive);
+					$firstInactive = array_shift($aliveFoesNotActiveForLivePLayers);
 					$firstInactive->active = true;
 					$firstInactive->serverNextCastTime = microtime(true) + $firstInactive->foeType->castTime;
 					$firstInactive->timeBeforeNextCast = $firstInactive->foeType->castTime;
@@ -326,6 +332,7 @@ class Game{
 							}
 						}else{
 							$foe->hasFled = true;
+							$foe->active = false;
 							//TODO Handle this case: the player has been removed
 						}
 					}else{
@@ -333,13 +340,21 @@ class Game{
 					}
 				}
 			}
-			$this->save();
 		}
-		$change = false;
 		$anyPlayerAlive = false;
 		foreach ($this->players as $player) {
 			if($player->playerLife > 0){
 				$anyPlayerAlive = true;
+			}else{
+				foreach ($aliveFoesNotActive as $foe) {
+					if($foe->foeType->spellWeakness->playerClass == $player->playerClass){
+						// Not need to wait little foe: your victim is already dead, flee, flee towards your liberty !!
+						if($foe->hasFled != true) $change = true;
+						if($foe->active != false) $change = true;
+						$foe->hasFled = true;
+						$foe->active = false;
+					}
+				}
 			}
 		}
 		if(!$anyPlayerAlive){
@@ -456,7 +471,7 @@ class Game{
 		$sparkFoeType = new FoeType("Sparkle", $iceLanceSpell, 50, 6/SERVER_SPEED);
 		// Fire
 		$iceElemFoeType = new FoeType("Ice elemental", $fireballSpell, 100, 11/SERVER_SPEED);
-		$iceGiantFoeType = new FoeType("Cold giant", $fireTornadoSpell, 100, 9/SERVER_SPEED);
+		$iceGiantFoeType = new FoeType("Cold giant", $fireTornadoSpell, 100, 9/SERVER_SPEED, 100);
 
 		// -- Foe types	
 		$this->addFoeToBestiary($zombieFoeType);
