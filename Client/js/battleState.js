@@ -8,6 +8,7 @@ var battleState = function(){
     this.whiteEmitter = null;
     this.sounds = [];
     this.soundsLoaded = false;
+    this.lastMessageBoxSound = false;
 };
 
 battleState.prototype = { 
@@ -448,9 +449,18 @@ battleState.prototype = {
                 +" !!\n(game '"+displayedId+"')"
                 +"\n"+nextLvlMsg;
             this.messageBox.revive();
+            if(this.lastMessageBoxSound != "success"){
+                this.playFX("levelup");
+                this.lastMessageBoxSound = "success";
+            }
         }else if(game.levelFailure){
             this.messageBox.message.text = "You were slain in level "+game.currentLevel+"\n(game '"+displayedId+"')";
             this.messageBox.revive();
+            if(this.lastMessageBoxSound != "gameover"){
+                this.playFX("gameover1");
+                this.lastMessageBoxSound = "gameover";
+            }
+
         }else if(game.gameStarted){
             this.messageBox.kill();
         }else{
