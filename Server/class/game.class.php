@@ -333,18 +333,25 @@ class Game{
 					}
 				}
 			}
-			$anyPlayerAlive = false;
-			foreach ($this->players as $player) {
-				if($player->playerLife > 0){
-					$anyPlayerAlive = true;
-				}
+			$this->save();
+		}
+		$change = false;
+		$anyPlayerAlive = false;
+		foreach ($this->players as $player) {
+			if($player->playerLife > 0){
+				$anyPlayerAlive = true;
 			}
-			if(!$anyPlayerAlive){
-				$this->levelFailure = true;
-				$this->gameStarted = false;
-			}else{
-				$this->levelFailure = false;
-			}
+		}
+		if(!$anyPlayerAlive){
+			if($this->levelFailure != true) $change = true;
+			if($this->gameStarted != false) $change = true;
+			$this->levelFailure = true;
+			$this->gameStarted = false;
+		}else{
+			if($this->levelFailure != false) $change = true;
+			$this->levelFailure = false;
+		}
+		if($change){
 			$this->save();
 		}
 	}
@@ -442,7 +449,7 @@ class Game{
 		$fireTornadoSpell = new Spell("Tornade de flammes", $this->randomSpellSequence($availableKeys), MAGE_CLASS_3, 50);
 
 		// Blanc
-		$zombieFoeType = new FoeType("Zombie", $lightStrikeSpell, 100, 9/SERVER_SPEED);
+		$zombieFoeType = new FoeType("Zombie", $lightStrikeSpell, 100, 9/SERVER_SPEED, 100);
 		$vampireFoeType = new FoeType("Vampire", $sacredLightSpell, 100, 7/SERVER_SPEED);
 		// Glace
 		$fireElemFoeType = new FoeType("Fire master", $frostBoltSpell, 100, 10/SERVER_SPEED);

@@ -257,5 +257,6 @@ $(document).ready(function(){
 
     if(getUrlParameter("debug") == "1"){
         $("#debugInfo").show();
+        $("#gameInfo").show();
     }
 });

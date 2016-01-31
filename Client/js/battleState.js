@@ -205,7 +205,7 @@ battleState.prototype = {
                     }
                 }
             }
-            if(!stillUsed && foeSprite.alive){
+            if(!stillUsed){
                 //console.log("Killing foe sprite", foeSprite, foeSprite.foeId, targetPlayer, foe);
                 foeSprite.foeId = null;
                 if(foeSprite.attackTween){
@@ -275,6 +275,7 @@ battleState.prototype = {
                         }
                     }
                     if(foeSprite != null){
+                        console.log("Sprite for foe", foeSprite,foe);
                         var percent = foe.foeLife / foe.foeType.foeMaxLife;
                         foeSprite.lifeBarFull.crop(new Phaser.Rectangle(0, 0, percent*48, 3));
                         foeSprite.revive();
