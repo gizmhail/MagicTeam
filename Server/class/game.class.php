@@ -553,7 +553,7 @@ class Game{
 	function loadLevel2(){	
 		$speed = $this->speed;
 		$playerStrength = 1;
-		$foesStrength = 2;
+		$foesStrength = 1;
 		$availableKeys = array("m","a","o","i","c","e","j","k","z");
 		$this->loadBaseLevelTemplate($availableKeys, $speed, $playerStrength, $foesStrength);
 
