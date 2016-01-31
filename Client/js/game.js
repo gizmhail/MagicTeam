@@ -1,6 +1,7 @@
 
 var serverHostname = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '');
-var serverBaseUrl = serverHostname + "/Phaser/GameJam/MagicTeam/Server";
+var basePath = location.pathname.split("/").slice(0,-2).join("/");
+var serverBaseUrl = serverHostname + basePath + "/Server";
 
 /*
 var gFireMageKey = "Mage blanc";
