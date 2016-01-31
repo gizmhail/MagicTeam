@@ -21,6 +21,9 @@ define("FIREMASTER_TYPE", "Fire master");
 define("SPARKLE_TYPE", "Sparkle");
 define("ICELEMENTAL_TYPE", "Ice elemental");
 define("COLDGIANT_TYPE", "Cold giant");
+define("HEADLESSKNIGHT_TYPE", "Headless knight");
+define("SANTA_TYPE", "Santa");
+define("Death_TYPE", "The Death");
 
 define("SERVER_SPEED", 1);
 
@@ -507,22 +510,28 @@ class Game{
 		// Blanc
 		$sacredLightSpell = new Spell("Lumière sacrée", $this->randomSpellSequence($availableKeys), MAGE_CLASS_1, 50*$playerStrength);
 		$lightStrikeSpell = new Spell("Frappe divine", $this->randomSpellSequence($availableKeys), MAGE_CLASS_1, 50*$playerStrength);
+		$lightHairSpell = new Spell("Coiffure céleste", $this->randomSpellSequence($availableKeys), MAGE_CLASS_1, 50*$playerStrength);
 		// Glace
 		$frostBoltSpell = new Spell("Eclair de givre", $this->randomSpellSequence($availableKeys), MAGE_CLASS_2, 50*$playerStrength);
 		$iceLanceSpell = new Spell("Javelot de glace", $this->randomSpellSequence($availableKeys), MAGE_CLASS_2, 50*$playerStrength);
+		$babySmileSpell = new Spell("Sourire d'angelots", $this->randomSpellSequence($availableKeys), MAGE_CLASS_2, 50*$playerStrength);
 		// Fire
 		$fireballSpell = new Spell("Fireball", $this->randomSpellSequence($availableKeys), MAGE_CLASS_3, 50*$playerStrength);
 		$fireTornadoSpell = new Spell("Tornade de flammes", $this->randomSpellSequence($availableKeys), MAGE_CLASS_3, 50*$playerStrength);
+		$badBoySpell = new Spell("Tenacité de sale gosse", $this->randomSpellSequence($availableKeys), MAGE_CLASS_3, 50*$playerStrength);
 
 		// Blanc
 		$zombieFoeType = new FoeType(ZOMBIE_TYPE, $lightStrikeSpell, 100, 9/$speed, 20*$foesStrength);
 		$vampireFoeType = new FoeType(VAMPIRE_TYPE, $sacredLightSpell, 100, 7/$speed, 20*$foesStrength);
+		$headlessKnightFoeType = new FoeType(HEADLESSKNIGHT_TYPE, $lightHairSpell, 100, 10/$speed, 20*$foesStrength);
 		// Glace
 		$fireElemFoeType = new FoeType(FIREMASTER_TYPE, $frostBoltSpell, 100, 10/$speed, 20*$foesStrength);
 		$sparkFoeType = new FoeType(SPARKLE_TYPE, $iceLanceSpell, 50, 6/$speed, 20*$foesStrength);
+		$death = new FoeType(Death_TYPE, $babySmileSpell, 100, 13/$speed, 40*$foesStrength);
 		// Fire
 		$iceElemFoeType = new FoeType(ICELEMENTAL_TYPE, $fireballSpell, 100, 11/$speed, 20*$foesStrength);
 		$iceGiantFoeType = new FoeType(COLDGIANT_TYPE, $fireTornadoSpell, 100, 9/$speed, 20*$foesStrength);
+		$santaType = new FoeType(SANTA_TYPE, $badBoySpell, 100, 10/$speed, 30*$foesStrength);
 
 		// -- Foe types	
 		$this->addFoeToBestiary($zombieFoeType);
@@ -531,6 +540,10 @@ class Game{
 		$this->addFoeToBestiary($sparkFoeType);
 		$this->addFoeToBestiary($iceElemFoeType);
 		$this->addFoeToBestiary($iceGiantFoeType);
+		$this->addFoeToBestiary($headlessKnightFoeType);
+		$this->addFoeToBestiary($death);
+		$this->addFoeToBestiary($santaType);
+
 	}
 
 	function loadLevel1(){	
@@ -560,12 +573,12 @@ class Game{
 		// -- Foe waves
 		$waveCount = 1;
 		while($waveCount>0){
-			$this->addFoeInstanceToWave(new Foe($this->foeTypeByName(ZOMBIE_TYPE)));
-			$this->addFoeInstanceToWave(new Foe($this->foeTypeByName(FIREMASTER_TYPE)));
-			$this->addFoeInstanceToWave(new Foe($this->foeTypeByName(ICELEMENTAL_TYPE)));
 			$this->addFoeInstanceToWave(new Foe($this->foeTypeByName(VAMPIRE_TYPE)));
 			$this->addFoeInstanceToWave(new Foe($this->foeTypeByName(SPARKLE_TYPE)));
 			$this->addFoeInstanceToWave(new Foe($this->foeTypeByName(COLDGIANT_TYPE)));
+			$this->addFoeInstanceToWave(new Foe($this->foeTypeByName(ZOMBIE_TYPE)));
+			$this->addFoeInstanceToWave(new Foe($this->foeTypeByName(FIREMASTER_TYPE)));
+			$this->addFoeInstanceToWave(new Foe($this->foeTypeByName(ICELEMENTAL_TYPE)));
 			$waveCount--;
 		}
 	}
@@ -580,6 +593,9 @@ class Game{
 		// -- Foe waves
 		$waveCount = 2;
 		while($waveCount>0){
+			$this->addFoeInstanceToWave(new Foe($this->foeTypeByName(HEADLESSKNIGHT_TYPE)));
+			$this->addFoeInstanceToWave(new Foe($this->foeTypeByName(SANTA_TYPE)));
+			$this->addFoeInstanceToWave(new Foe($this->foeTypeByName(Death_TYPE)));
 			$this->addFoeInstanceToWave(new Foe($this->foeTypeByName(ZOMBIE_TYPE)));
 			$this->addFoeInstanceToWave(new Foe($this->foeTypeByName(FIREMASTER_TYPE)));
 			$this->addFoeInstanceToWave(new Foe($this->foeTypeByName(ICELEMENTAL_TYPE)));

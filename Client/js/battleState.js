@@ -19,6 +19,9 @@ battleState.prototype = {
         magicTeamGame.load.image('foe_absent', 'assets/foe_absent.png');
         magicTeamGame.load.image('foe_killed', 'assets/foe_killed.png');
         magicTeamGame.load.image('vampire', 'assets/drow_male1.png');
+        magicTeamGame.load.image('headLessKnight', 'assets/headLessKnight.png');
+        magicTeamGame.load.image('death', 'assets/death.png');
+        magicTeamGame.load.image('santa', 'assets/santa.png');
         magicTeamGame.load.image('giant', 'assets/drax.png');
         magicTeamGame.load.image('iceElemental', 'assets/bahamut.png');
         magicTeamGame.load.image('sparkle', 'assets/rincewind.png');
@@ -305,6 +308,16 @@ battleState.prototype = {
                                 sprite.x = sprite.originalPosition.x;
                                 sprite.y = sprite.originalPosition.y;
                                 var texture = "zombie";
+                                if(foe.foeType.foeName == "Headless knight"){
+                                    texture = "headLessKnight";
+                                }
+                                if(foe.foeType.foeName == "Santa"){
+                                    texture = "santa";
+                                }
+                                if(foe.foeType.foeName == "The Death"){
+                                    texture = "death";
+                                }
+
                                 if(foe.foeType.foeName == "Vampire"){
                                     texture = "vampire";
                                 }
