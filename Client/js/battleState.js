@@ -78,6 +78,7 @@ battleState.prototype = {
             var mageDisplayText = magicTeamGame.add.text(-20, 55, text, style); 
             this.mageSprites[mageKey].addChild(mageDisplayText);
             this.mageSprites[mageKey].mageDisplayText = mageDisplayText;
+            this.mageSprites[mageKey].particlePosition = null;
         };
 
         for (var i = 0; i < 3; i++) {
@@ -137,17 +138,6 @@ battleState.prototype = {
         this.mageSprites[gFrostMageKey].revive();
         */
 
-        var t = this;
-        window.setTimeout(function(){
-            t.particleBurst(100, 100);
-            t.particleBurst(130, 100);
-            t.particleBurst(160, 100);
-            t.particleBurst(190, 100);
-            t.particleBurst(210, 100);
-            t.particleBurst(240, 100);
-        }, 3000);
-
-
         magicTeamGame.physics.startSystem(Phaser.Physics.ARCADE);
 
         this.whiteEmitter = magicTeamGame.add.emitter(0, 0, 100);
@@ -187,6 +177,7 @@ battleState.prototype = {
 
     // --- Global update logic
     updateUIWithGameInfo: function(game){
+
         for (var i = 0; i < this.foeIndicatorSprites.length; i++) {
             var sprite = this.foeIndicatorSprites[i];
             if(i < game.waveInfo.length){
@@ -227,6 +218,13 @@ battleState.prototype = {
                 }
             }else{
                 //TODO Add annimation when killed (and check if killed)
+                if(sprite.alive){
+                    this.particleBurst(sprite.x + 5, sprite.y + 5);
+                    this.particleBurst(sprite.x + 8, sprite.y + 8);
+                    this.particleBurst(sprite.x + 8, sprite.y);
+                    this.particleBurst(sprite.x    , sprite.y + 8);
+
+                }
                 sprite.kill();
             }
         }
@@ -268,6 +266,7 @@ battleState.prototype = {
                     foeSprite.attackTween.stop();
                 }
                 foeSprite.attackTween = null;
+
                 foeSprite.kill();
             }
         }
@@ -343,8 +342,13 @@ battleState.prototype = {
                             //console.log(foeSprite.attackTween, foe.timeBeforeNextCast);
                             if(tweenRunning && foe.timeBeforeNextCast < (foe.foeType.castTime - 1)){
                                 //console.log("No tween", foeSprite.attackTween);
+                                var x = mageSprite.x;
+                                var y = mageSprite.y;
                                 foeSprite.attackTween = magicTeamGame.add.tween(foeSprite)
-                                    .to( {x: mageSprite.x + 10, y: mageSprite.y}, 1000*foe.timeBeforeNextCast);
+                                    .to( {x: x + 10, y: y}, 1000*foe.timeBeforeNextCast);
+                                foeSprite.attackTween.onComplete.add(function(){
+                                    this.state.particleBurst(this.x, this.y);
+                                }, {"state": this, "x":x,"y":y});
                                 foeSprite.attackTween.start();
                                 //console.log("Starting tween", foeSprite.attackTween);
                             }else{
@@ -378,7 +382,13 @@ battleState.prototype = {
             displayedId = displayedId.substring(0,10)+"...";
         }
         if(game.levelSucess){
-            this.messageBox.message.text = "Sucess for level "+game.currentLevel+" !!\n(game '"+displayedId+"')";
+            var nextLvlMsg = "Try next level !";
+            if(game.currentLevel == 4){
+                nextLvlMsg = "You have beaten the game, congratulation !!"
+            }
+            this.messageBox.message.text = "Sucess for level "+game.currentLevel
+                +" !!\n(game '"+displayedId+"')"
+                +"\n"+nextLvlMsg;
             this.messageBox.revive();
         }else if(game.levelFailure){
             this.messageBox.message.text = "You were slain in level "+game.currentLevel+"\n(game '"+displayedId+"')";
