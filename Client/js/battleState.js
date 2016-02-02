@@ -9,6 +9,13 @@ var battleState = function(){
     this.sounds = [];
     this.soundsLoaded = false;
     this.lastMessageBoxSound = false;
+    this.spellBookButton = null;
+    this.bestiaryButton = null;
+    this.spellBookMode = true;
+    this.arcaneZones = [];
+    this.arcaneButtons = [];
+    this.arcaneSymbols = [];
+    this.displayedKeys = null;
 };
 
 battleState.prototype = { 
@@ -30,9 +37,17 @@ battleState.prototype = {
         magicTeamGame.load.image('iceElemental', 'assets/bahamut.png');
         magicTeamGame.load.image('sparkle', 'assets/rincewind.png');
         magicTeamGame.load.image('fireTornadoMage', 'assets/rincewind.png');
+        magicTeamGame.load.image('bestiary_on', 'assets/bestiary_on.png');
+        magicTeamGame.load.image('bestiary_off', 'assets/bestiary_off.png');
+        magicTeamGame.load.image('spellbook_off', 'assets/spellbook_off.png');
+        magicTeamGame.load.image('spellbook_on', 'assets/spellbook_on.png');
+        magicTeamGame.load.image('button_back', 'assets/button_back.png');
+        magicTeamGame.load.image('circle', 'assets/circle.png');
+
         magicTeamGame.load.spritesheet('white_explosion', 'assets/sparkle.png', 36, 32);
         magicTeamGame.load.spritesheet('explosion', 'assets/red_sparkle.png', 36, 32);
         magicTeamGame.load.spritesheet('zombie', 'assets/ZombieSpriteSheet.png', 40, 37);
+
         magicTeamGame.load.audio('coup1', 'sounds/coup1.mp3');
         magicTeamGame.load.audio('coup2', 'sounds/coup2.mp3');
         magicTeamGame.load.audio('coup3', 'sounds/coup3.mp3');
@@ -48,9 +63,9 @@ battleState.prototype = {
     create: function () {
         // Scalling
         this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-        this.scale.minWidth = 120;
-        this.scale.minHeight = 100;
-        this.scale.maxHeight = 384;
+        this.scale.minWidth = 320;
+        this.scale.minHeight = 442;
+        this.scale.maxHeight = 1084;
         this.scale.maxWidth = 640;
         
         this.backgroundSprite = magicTeamGame.add.sprite(0, 0, 'background');
@@ -175,11 +190,60 @@ battleState.prototype = {
         };
 
         magicTeamGame.sound.setDecodedCallback(soundsToLoad, this.soundsAvailable, this);
+
+        // UI
+        this.stage.backgroundColor = "#ffffff";
+
+        // Mode button
+        var xButton = 0;
+        var yButton = 284;
+        var buttonScale = 0.412;
+        this.spellBookButton = magicTeamGame.add.button(xButton, yButton, "spellbook_on", function(){
+            this.toogleButtonMode();
+        }, this);
+        xButton = 320;
+        this.bestiaryButton = magicTeamGame.add.button(xButton, yButton, "bestiary_off", function(){
+            this.toogleButtonMode();
+        }, this);
+        this.spellBookButton.scale.set(buttonScale);
+        this.bestiaryButton.scale.set(buttonScale);
+
+        // Cast zone
+        var symbol = magicTeamGame.add.text(5, 340,"Press 3 arcane symbol to cast a spell",{"font": "20px fantasy", "text-align":"center", wordWrap: true, wordWrapWidth: 190});
+        var xArcaneZone = 250;
+        for (var i = 0; i < 3; i++) {
+            var arcaneZone = magicTeamGame.add.sprite(xArcaneZone + i*130, 320, "circle");
+            this.arcaneZones.push(arcaneZone);
+        }        
+
+        this.scale.onSizeChange.add(this.sizeChange, this);
+    },
+
+
+    sizeChange: function(){
+        if(this.scale.height < 884){
+            var scale = 884/this.scale.height;
+            $("#bestiary").css("top", 61 + 303/scale);
+        }
     },
 
     soundsAvailable: function(){
         this.music.loopFull(0.2);
         this.soundsLoaded = true;
+    },
+
+    toogleButtonMode: function(){
+        if(this.spellBookMode){
+            this.spellBookMode = false;
+            showBestiary();
+            this.bestiaryButton.loadTexture("bestiary_on");
+            this.spellBookButton.loadTexture("spellbook_off");
+        }else{
+            this.spellBookMode = true;
+            showSpellBook();
+            this.spellBookButton.loadTexture("spellbook_on");
+            this.bestiaryButton.loadTexture("bestiary_off");
+        }
     },
 
     playFX: function(audioKey){
@@ -219,6 +283,58 @@ battleState.prototype = {
 
     // --- Global update logic
     updateUIWithGameInfo: function(game){
+        if(this.displayedKeys == null || JSON.stringify(this.displayedKeys)!=JSON.stringify(game.availableKeys)){
+            var xButton = 5;
+            var yButton = 454;
+            var xSize = 127;
+            var ySize = 127;
+            for (var i = 0; i < game.availableKeys.length; i++) {
+                var keyId = game.availableKeys[i];
+                var arcaneButton = magicTeamGame.add.button(xButton, yButton, "button_back", function(){
+                    if(gSequence.length < 3){
+                        var text = magicTeamGame.add.text(
+                            this.x, 
+                            this.y,
+                            this.keyId,
+                            {"font": "102px fantasy", "text-align":"center"}
+                        );  
+                        this.state.arcaneSymbols.push(text);  
+                        magicTeamGame.add.tween(text)
+                            .to({
+                                x:this.state.arcaneZones[gSequence.length].x+20, 
+                                y:this.state.arcaneZones[gSequence.length].y-15
+                            }, 500).start();
+                        gSequence.push(this.keyId);
+                        if(gSequence.length == 3){
+                            // Automatic cast (with a small delay to SEE third arcane symbol pressed)
+                            var state = this.state;
+                            window.setTimeout(function(){
+                                castPreparedSpell()
+                            }, 300);
+                            window.setTimeout(function(){
+                                for (var k = 0; k < state.arcaneSymbols.length; k++) {
+                                    var text = state.arcaneSymbols[k];
+                                    text.destroy();
+                                };
+                                state.arcaneSymbols = [];
+                            }, 600);
+                        }
+                    }
+                }, {"state":this, x: xButton, y: yButton, keyId: keyId});
+                var symbol = magicTeamGame.add.text(30,-20,keyId,{"font": "152px fantasy", "text-align":"center"});
+                arcaneButton.arcaneText = symbol;
+                arcaneButton.keyId = keyId;
+                arcaneButton.addChild(symbol);
+                arcaneButton.scale.set(0.8);
+                this.arcaneButtons.push(arcaneButton);
+                xButton += xSize;
+                if(i==4){
+                    xButton = 5;
+                    yButton += ySize;
+                }
+            }
+            this.displayedKeys = game.availableKeys;
+        }
 
         for (var i = 0; i < this.foeIndicatorSprites.length; i++) {
             var sprite = this.foeIndicatorSprites[i];
@@ -440,7 +556,11 @@ battleState.prototype = {
         if(displayedId.length>13){
             displayedId = displayedId.substring(0,10)+"...";
         }
-        if(game.levelSucess){
+        if(Object.keys(game.players).length < 2){
+            var additionalInfo = "\n\nNot enough players: bring friends to game '"+displayedId+"' !";
+            this.messageBox.message.text = "Game '"+displayedId+"'' not started\nfor level "+game.currentLevel+additionalInfo;
+            this.messageBox.revive();
+        } else if(game.levelSucess){
             var nextLvlMsg = "Try next level !";
             if(game.currentLevel == 4){
                 nextLvlMsg = "You have beaten the game, congratulation !!"
@@ -464,11 +584,7 @@ battleState.prototype = {
         }else if(game.gameStarted){
             this.messageBox.kill();
         }else{
-            var additionalInfo = "";
-            if(Object.keys(game.players).length < 2){
-                additionalInfo = "\n\nNot enough players: bring friends to game '"+displayedId+"' !";
-            }
-            this.messageBox.message.text = "Game '"+displayedId+"'' not started\nfor level "+game.currentLevel+additionalInfo;
+            this.messageBox.message.text = "Game '"+displayedId+"'' not started\nfor level "+game.currentLevel;
             this.messageBox.revive();
         }
     },

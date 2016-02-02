@@ -116,6 +116,7 @@ function regularGameStateUpdate(){
 }
 
 function castPreparedSpell(){
+    console.log(gSequence);
     castSpell(gameId, playerId, gSequence, function(){});
     gSequence = [];
     $(".arcane").html("");
@@ -186,6 +187,20 @@ function restartGame(){
     });
 }
 
+function showBestiary(){
+    $('#bestiary').show();
+    $('#input').hide();
+    $('#bestiaryToogle').css("background-color", "#FFE4B5");
+    $('#spellBookToogle').css("background-color", "white");
+}
+
+function showSpellBook(){
+    $('#input').show();
+    $('#bestiary').hide();
+    $('#bestiaryToogle').css("background-color", "white");
+    $('#spellBookToogle').css("background-color", "#FFE4B5");        
+}
+
 $(document).ready(function(){  
     var gameId = currentGameId();
     var playerId = userIdentifier();
@@ -233,7 +248,7 @@ $(document).ready(function(){
                 showSpellBook();
                 break;
             case 32: 
-                if(!$('#spellBookToogle').is(":visible")){
+                if(!$('#input').is(":visible")){
                     showSpellBook();
                 }else{
                     showBestiary();
@@ -247,19 +262,7 @@ $(document).ready(function(){
 
     });
 
-    function showBestiary(){
-        $('#bestiary').show();
-        $('#input').hide();
-        $('#bestiaryToogle').css("background-color", "#FFE4B5");
-        $('#spellBookToogle').css("background-color", "white");
-    }
 
-    function showSpellBook(){
-        $('#input').show();
-        $('#bestiary').hide();
-        $('#bestiaryToogle').css("background-color", "white");
-        $('#spellBookToogle').css("background-color", "#FFE4B5");        
-    }
     $("#spellBookToogle").click(function(event){
         showSpellBook();
     });

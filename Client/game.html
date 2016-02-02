@@ -30,7 +30,7 @@
                 <option value='4'>Level 4</option>
             </select>
         </div>
-        <div id='gameStatus' style='text-align:center'></div>
+        <div id='gameStatus' style='text-align:center;text-overflow: ellipsis;height:20px;'></div>
         <div id='gameDiv'></div>
         <div id='gameInfo' style="display:none">
             <div id='playersSide' style='float:left;width:50%'></div>
@@ -38,67 +38,76 @@
             <div style='clear:both'></div>
         </div>
 
-        <div style='margin-top:5px'>
-            <div id='bestiaryToogle' class='toogleZone' style='float:left;width:48%;border:2px solid brown'>
-                <div style='text-align:center'><b>Bestiary</b> <br/><small>(<i>the foes against which your FRIEND's spells are effective - tell them what to cast</i>)</small></div>
-            </div>
-            <div id='spellBookToogle' class='toogleZone' style='float:right;width:48%;border:2px solid brown;background-color:#FFE4B5'>
-                <div style='text-align:center'><b>Spellbook</b> <br/><small>(<i>combine symbols to launch YOUR spells - as instructed by your friends</i>)</small></div>
-            </div>
-            <div style='clear:both'></div>
-        </div>
+        <div id='bestiary' style='display:none'></div>
 
-        <div id='gameEntries' style='margin-top:5px'>
-            <div style='float:left;width:100%'>
-                <div id='bestiary' style='display:none'></div>
-
-            </div>
-            <div style='float:right;width:100%'>
-                <div id='input'>
-                    <div  id='arcaneList' style='width:100%'>
-                        <span>
-                            <div style='float:left;width:180px'>Press 3 arcane symbol to cast a spell</div>
-                            <div id='arcane1' class='arcane'> </div>
-                            <div id='arcane2' class='arcane'> </div>
-                            <div id='arcane3' class='arcane'> </div>
-                        </span>
-                        <button id='castButton' style='display:none'>Cast spell</button>
-                        <button id='resetButton' style='display:none'>Reset spell</button>
-                        <div style='clear:both'></div>
+        <div id="htmlOverlay" style="display:none">
+            <div style='margin-top:5px'>
+                <div id='bestiaryToogle' class='toogleZone' style='float:left;width:48%;border:2px solid brown'>
+                    <div style='text-align:center'>
+                        <b>Bestiary</b> 
+                        <div style="display:none"><small>(<i>the foes against which your FRIEND's spells are effective - tell them what to cast</i>)</small></div>
                     </div>
-                    <div id="keys" style='background-color:#888888;overflow: hidden;'>
-                        <div>Your arcane symbols</div>
-                        <div id="keysContainer">
-                            <!--
-                            <div id='key-a' class='key'>a</div>
-                            <div id='key-z' class='key'>z</div>
-                            <div id='key-e' class='key'>e</div>
-                            <div id='key-m' class='key'>m</div>
-                            <div id='key-n' class='key'>n</div>
-                            <div id='key-o' class='key'>o</div>
-                            <div id='key-i' class='key'>i</div>
-                            <div id='key-j' class='key'>j</div>
-                            <div id='key-k' class='key'>k</div>
-                            <div id='key-c' class='key'>c</div>
-                            -->
+                </div>
+                <div id='spellBookToogle' class='toogleZone' style='float:right;width:48%;border:2px solid brown;background-color:#FFE4B5'>
+                    <div style='text-align:center'>
+                        <b>Spellbook</b> 
+                        <div style="display:none"   ><small>(<i>combine symbols to launch YOUR spells - as instructed by your friends</i>)</small></div>
+                    </div>
+                </div>
+                <div style='clear:both'></div>
+            </div>
+
+            <div id='gameEntries' style='margin-top:5px'>
+                <div style='float:left;width:100%'>
+
+                </div>
+                <div style='float:right;width:100%'>
+                    <div id='input'>
+                        <div  id='arcaneList' style='width:100%'>
+                            <span>
+                                <div style='float:left;width:180px'>Press 3 arcane symbol to cast a spell</div>
+                                <div id='arcane1' class='arcane'> </div>
+                                <div id='arcane2' class='arcane'> </div>
+                                <div id='arcane3' class='arcane'> </div>
+                            </span>
+                            <button id='castButton' style='display:none'>Cast spell</button>
+                            <button id='resetButton' style='display:none'>Reset spell</button>
+                            <div style='clear:both'></div>
+                        </div>
+                        <div id="keys" style='background-color:#888888;overflow: hidden;'>
+                            <div>Your arcane symbols</div>
+                            <div id="keysContainer">
+                                <!--
+                                <div id='key-a' class='key'>a</div>
+                                <div id='key-z' class='key'>z</div>
+                                <div id='key-e' class='key'>e</div>
+                                <div id='key-m' class='key'>m</div>
+                                <div id='key-n' class='key'>n</div>
+                                <div id='key-o' class='key'>o</div>
+                                <div id='key-i' class='key'>i</div>
+                                <div id='key-j' class='key'>j</div>
+                                <div id='key-k' class='key'>k</div>
+                                <div id='key-c' class='key'>c</div>
+                                -->
+                            </div>
                         </div>
                     </div>
-                </div>
-                </div>
-            <div style='clear:both'></div>
+                    </div>
+                <div style='clear:both'></div>
+            </div>
+        	<div id='debugInfo' style='display:none'>
+                <small><i>
+                    <fieldset>
+                        <legend>Game info</legend>
+                        <ul>
+                            <li>Player id: <span id='playerId'></span></li>
+                            <li>Player class: <span id='playerClass'></span></li>
+                            <li>Game id: <span id='gameId'></span></li>
+                        </ul>
+                    </fieldset>
+                </i></small>
+        	</div>
         </div>
-    	<div id='debugInfo' style='display:none'>
-            <small><i>
-                <fieldset>
-                    <legend>Game info</legend>
-                    <ul>
-                        <li>Player id: <span id='playerId'></span></li>
-                        <li>Player class: <span id='playerClass'></span></li>
-                        <li>Game id: <span id='gameId'></span></li>
-                    </ul>
-                </fieldset>
-            </i></small>
-    	</div>
     </body>
 </html>
 
